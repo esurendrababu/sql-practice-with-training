@@ -1,492 +1,345 @@
+# Phase 0 — Database Fundamentals
 
-
-## 🎯 What will you learn?
-
-
-* What is a database?
-* What is a DBMS?
-* DBMS vs File System
-* Database vs Table
-* What is a Row / Record?
-* What is a Column / Attribute?
-* What is a Primary Key?
-* What is a Foreign Key?
-* What is NULL?
-* How are tables related?
-* What is the basic Relational Model?
+Before writing SQL queries, we need to understand **what a database is and how data is organized inside it**.
 
 ---
 
-# 1. What is a Database?
+# 1. Definition
 
+## What is a Database?
 
-Imagine your college has **5,000 students**.
+A **database** is an organized collection of data that allows us to store, manage, search, and retrieve information easily.
 
-For every student, the college needs to store information such as:
+### Simple Example
 
-| Student ID | Name  | Age | Department | Phone      |
-| ---------- | ----- | --: | ---------- | ---------- |
-| 101        | Ravi  |  20 | CSE        | 9876543210 |
-| 102        | Sita  |  21 | ECE        | 9876543211 |
-| 103        | Arun  |  20 | CSE        | 9876543212 |
-| 104        | Priya |  22 | EEE        | 9876543213 |
+Imagine a college needs to store student information.
 
-Where should this information be stored?
-
-We could store it in:
-
-* Excel
-* Text files
-* CSV files
-* Applications
-* Or a **Database**
-
-A **database** is an organized collection of data that allows us to store, manage, retrieve, and update information efficiently.
-
-### Simple definition
-
-> **Database = Organized collection of related data.**
+Instead of maintaining hundreds of Excel files or paper records, we can store the information in a database.
 
 For example:
 
-College Database
+```text
+Student Database
 │
 ├── Students
-├── Faculty
 ├── Courses
-├── Departments
-└── Exams
+├── Teachers
+└── Departments
+```
 
+The `Students` table might contain:
 
-The important word is **organized**.
+| student_id | student_name | age | course |
+| ---------: | ------------ | --: | ------ |
+|        101 | Ravi         |  20 | B.Tech |
+|        102 | Sita         |  21 | B.Tech |
+|        103 | Arun         |  20 | MCA    |
 
-A database is not just a collection of random information.
+So, a database helps us keep related information **organized and accessible**.
 
 ---
 
 # 2. Why Do We Need a Database?
 
-Let's imagine that a college stores all student information in separate Excel files.
+Without a proper database, managing large amounts of data becomes difficult.
 
+For example, imagine a company with:
 
-Students.xlsx
-Faculty.xlsx
-Courses.xlsx
-Marks.xlsx
-Attendance.xlsx
+```text
+50,000 employees
+100,000 customers
+1,000,000 orders
+```
 
+Searching and maintaining this information manually would be difficult.
 
-Initially, this may work.
+A database helps us:
 
-But when the college grows, problems start appearing.
-
-### Problem 1 — Duplicate Data
-
-The same student information may appear in multiple files.
-
-
-Student ID: 101
-Name: Ravi
-Department: CSE
-
-
-This information may appear in:
-
-Students.xlsx
-Marks.xlsx
-Attendance.xlsx
-Fees.xlsx
-
-
-If Ravi changes his phone number, we may need to update it in multiple places.
+* Store large amounts of data
+* Search data quickly
+* Update information
+* Delete information
+* Maintain relationships between data
+* Reduce duplicate data
+* Control access to data
+* Keep data organized
 
 ---
 
-### Problem 2 — Data Inconsistency
+# 3. What is a DBMS?
 
-Suppose Ravi's phone number is:
+## Definition
 
+**DBMS** stands for **Database Management System**.
 
-Students.xlsx → 9876543210
-Attendance.xlsx → 9876543299
-
-
-Which one is correct?
-
-Now our data is inconsistent.
-
----
-
-### Problem 3 — Searching Becomes Difficult
-
-Imagine having:
-
-
-5,000 students
-500 faculty
-200 courses
-
-
-Finding specific information manually becomes difficult.
-
----
-
-### Problem 4 — Multiple People Need Access
-
-At the same time:
-
-
-Admin
-Faculty
-Students
-Accounts Department
-Exam Department
-
-
-may need to access the same data.
-
-We need a better system.
-
-That's where a **DBMS** comes in.
-
----
-
-# 3. What is DBMS?
-
-**DBMS** stands for:
-
-> **Database Management System**
-
-A DBMS is software used to create, store, manage, retrieve, and control data in databases.
+A DBMS is software used to **create, store, manage, and access databases**.
 
 Examples:
-
-* MySQL
-* PostgreSQL
-* Oracle Database
-* Microsoft SQL Server
-* SQLite
-
-Think about it like this:
-
-```text
-              USER
-                │
-                ↓
-               DBMS
-                │
-                ↓
-             DATABASE
-```
-
-The user does not directly manage every piece of data manually.
-
-The **DBMS manages the database**.
-
----
-
-# 4. Database vs DBMS
-
-This is an important distinction.
-
-### Database
-
-The **data itself**.
-
-Example:
-
-```text
-Student 101 → Ravi → CSE
-Student 102 → Sita → ECE
-```
-
-### DBMS
-
-The **software that manages the data**.
-
-Example:
 
 ```text
 MySQL
 PostgreSQL
-Oracle
-SQL Server
+Oracle Database
+Microsoft SQL Server
+SQLite
 ```
 
-### Easy way to remember
-
-> **Database = Data**
->
-> **DBMS = Software that manages the data**
-
----
-
-# 5. DBMS vs File System
-
-Before databases became widely used, organizations commonly stored data in files.
-
-For example:
-
-```text
-students.txt
-employees.txt
-marks.txt
-```
-
-This is called a **file-based system**.
-
-A DBMS provides a more structured way to manage related data.
-
-| File System                                     | DBMS                                       |
-| ----------------------------------------------- | ------------------------------------------ |
-| Data stored in files                            | Data stored and managed in databases       |
-| Searching can become difficult                  | Efficient querying                         |
-| More data duplication can occur                 | Redundancy can be controlled               |
-| Relationships are difficult to manage           | Relationships can be defined               |
-| Security is limited                             | User access and permissions can be managed |
-| Concurrent access is difficult                  | Multiple users can work with data          |
-| Backup/recovery may require separate mechanisms | DBMS provides database recovery mechanisms |
-
-### Simple example
-
-File system:
-
-```text
-students.txt
-marks.txt
-attendance.txt
-```
-
-DBMS:
-
-```text
-College Database
-│
-├── Students
-├── Marks
-└── Attendance
-```
-
-The DBMS helps manage the relationships between these pieces of data.
-
----
-
-# 6. What is a Table?
-
-Now we come to the most important concept for SQL.
-
-A **table** is a structured collection of related data arranged into:
-
-* Rows
-* Columns
-
-Example:
-
-### Students
-
-| student_id | name  | age | department |
-| ---------: | ----- | --: | ---------- |
-|        101 | Ravi  |  20 | CSE        |
-|        102 | Sita  |  21 | ECE        |
-|        103 | Arun  |  20 | CSE        |
-|        104 | Priya |  22 | EEE        |
-
-This is a table.
-
-Think of a table like an Excel sheet.
-
-```text
-        Students
-┌────────────┬────────┬─────┬────────────┐
-│ student_id │ name   │ age │ department │
-├────────────┼────────┼─────┼────────────┤
-│ 101        │ Ravi   │ 20  │ CSE        │
-│ 102        │ Sita   │ 21  │ ECE        │
-│ 103        │ Arun   │ 20  │ CSE        │
-│ 104        │ Priya  │ 22  │ EEE        │
-└────────────┴────────┴─────┴────────────┘
-```
-
----
-
-# 7. Database vs Table
-
-A database can contain **many tables**.
-
-For example:
-
-```text
-College Database
-│
-├── Students
-├── Departments
-├── Faculty
-├── Courses
-├── Enrollments
-└── Marks
-```
-
-So:
-
-> **Database = Collection of related tables and other database objects**
-
-And:
-
-> **Table = Collection of related records**
-
-### Easy analogy
-
-Think of a **college** as a database.
-
-Inside the college, there are different departments.
-
-```text
-College
-│
-├── CSE
-├── ECE
-├── EEE
-└── Mechanical
-```
-
-Similarly:
+Think of it like this:
 
 ```text
 Database
-│
-├── Students
-├── Faculty
-├── Courses
-└── Departments
+   ↑
+Managed by
+   ↑
+DBMS
 ```
-
----
-
-# 8. What is a Row?
-
-A **row** represents one complete record.
-
-Example:
-
-| student_id | name | age | department |
-| ---------: | ---- | --: | ---------- |
-|        101 | Ravi |  20 | CSE        |
-
-This entire row represents **one student**.
-
-Therefore:
-
-> **Row = Record**
 
 For example:
 
 ```text
-101 | Ravi | 20 | CSE
+MySQL
+   ↓
+Manages
+   ↓
+Company Database
 ```
-
-is one student record.
-
-If we have 1,000 students, the table may contain approximately 1,000 student records.
 
 ---
 
-# 9. What is a Column?
+# 4. DBMS vs File System
 
-A **column** represents one type of information about the records.
+Before databases became widely used, organizations often stored information in files.
+
+For example:
+
+```text
+employees.xlsx
+customers.xlsx
+orders.xlsx
+```
+
+This works for small amounts of data, but becomes difficult as the organization grows.
+
+### File System
+
+```text
+Files
+ ↓
+Manual organization
+ ↓
+Difficult relationships
+ ↓
+Duplicate data
+ ↓
+Difficult large-scale management
+```
+
+### DBMS
+
+```text
+Database
+ ↓
+Structured data
+ ↓
+Relationships
+ ↓
+Better data management
+ ↓
+Controlled access
+```
+
+### Simple Comparison
+
+| File System                    | DBMS                            |
+| ------------------------------ | ------------------------------- |
+| Data stored in files           | Data stored in databases        |
+| Difficult to manage large data | Designed for large data         |
+| Relationships are difficult    | Relationships can be defined    |
+| More duplication can occur     | Reduces unnecessary duplication |
+| Limited querying               | Powerful querying               |
+| Security can be limited        | Access control is available     |
+
+---
+
+# 5. Database vs Table
+
+This is one of the most important concepts for beginners.
+
+## Database
+
+A **database** is a collection of related tables and other database objects.
+
+For example:
+
+```text
+College Database
+│
+├── students
+├── courses
+├── teachers
+└── departments
+```
+
+## Table
+
+A **table** stores data in rows and columns.
+
+For example:
+
+```text
+students
+```
+
+| student_id | student_name | age |
+| ---------: | ------------ | --: |
+|        101 | Ravi         |  20 |
+|        102 | Sita         |  21 |
+|        103 | Arun         |  20 |
+
+So:
+
+```text
+Database
+   ↓
+Contains tables
+   ↓
+Tables contain data
+```
+
+---
+
+# 6. What is a Row / Record?
+
+A **row** represents one complete record in a table.
 
 Example:
 
-| student_id | name | age | department |
-| ---------: | ---- | --: | ---------- |
-|        101 | Ravi |  20 | CSE        |
-|        102 | Sita |  21 | ECE        |
-|        103 | Arun |  20 | CSE        |
+| student_id | student_name | age |
+| ---------: | ------------ | --: |
+|        101 | Ravi         |  20 |
+|        102 | Sita         |  21 |
+
+The first row:
+
+```text
+101 | Ravi | 20
+```
+
+is one record.
+
+It represents one student.
+
+### Easy way to remember
+
+> **Row = One record**
+
+For example:
+
+```text
+One student → One row
+One employee → One row
+One customer → One row
+One order → One row
+```
+
+---
+
+# 7. What is a Column / Attribute?
+
+A **column** represents a particular piece of information about the data.
+
+Example:
+
+| student_id | student_name | age |
+| ---------: | ------------ | --: |
+|        101 | Ravi         |  20 |
+|        102 | Sita         |  21 |
 
 Here:
 
 ```text
-student_id → Student ID information
-name       → Student name information
-age        → Student age information
-department → Department information
+student_id
+student_name
+age
 ```
 
-Therefore:
+are columns.
 
-> **Column = Attribute**
+Each column describes one attribute of a student.
 
-So:
+### Easy way to remember
+
+> **Column = Type of information**
+
+For example:
 
 ```text
-Row    → Record
-Column → Attribute
+employee_id
+employee_name
+salary
+department
 ```
-
-These two terms are very important in DBMS.
 
 ---
 
-# 10. Row vs Column
+# 8. Row vs Column
 
-Remember this simple rule:
+Students often confuse these two.
+
+Consider:
+
+| student_id | student_name | age |
+| ---------: | ------------ | --: |
+|        101 | Ravi         |  20 |
+|        102 | Sita         |  21 |
 
 ### Row
 
-> **Who / Which record?**
+```text
+101 | Ravi | 20
+```
+
+Represents:
+
+> One student
 
 ### Column
 
-> **What information about that record?**
-
-Example:
-
 ```text
-101 | Ravi | 20 | CSE
+student_name
 ```
 
-This is a **row/record**.
+Represents:
 
-And:
+> Student name information
+
+### Remember
 
 ```text
-name
-```
+ROW
+↓
+One record
 
-is a **column/attribute**.
+COLUMN
+↓
+One type of information
+```
 
 ---
 
-# 11. What is a Primary Key?
+# 9. What is a Primary Key?
 
-Now we have an important problem.
+## Definition
 
-Suppose we have:
-
-| name | age | department |
-| ---- | --: | ---------- |
-| Ravi |  20 | CSE        |
-| Ravi |  21 | ECE        |
-| Arun |  20 | CSE        |
-
-Can we identify a student using only the name?
-
-No.
-
-Because two students can have the same name.
-
-We need something that uniquely identifies each student.
-
-That's why we use:
-
-> **Primary Key**
+A **Primary Key** is a column, or combination of columns, that uniquely identifies each row in a table.
 
 Example:
 
-| student_id | name | age | department |
-| ---------: | ---- | --: | ---------- |
-|    **101** | Ravi |  20 | CSE        |
-|    **102** | Ravi |  21 | ECE        |
-|    **103** | Arun |  20 | CSE        |
+| student_id | student_name | age |
+| ---------: | ------------ | --: |
+|        101 | Ravi         |  20 |
+|        102 | Sita         |  21 |
+|        103 | Arun         |  20 |
 
 Here:
 
@@ -494,245 +347,169 @@ Here:
 student_id
 ```
 
-can uniquely identify each student.
+can be the Primary Key.
 
-### Simple definition
+Why?
 
-> **Primary Key = A column or combination of columns that uniquely identifies each row in a table.**
+Because every student has a unique `student_id`.
+
+```text
+101 → Ravi
+102 → Sita
+103 → Arun
+```
+
+No two students should have the same ID.
 
 ---
 
-# 12. Primary Key Rules
+# 10. Primary Key Rules
 
-A primary key should:
+A primary key:
 
-### 1. Be unique
+* Must uniquely identify each record
+* Cannot contain `NULL`
+* Cannot contain duplicate values
+* Can be used to identify a specific row
 
-```text
-101
-102
-103
-```
-
-We should not have:
+Example:
 
 ```text
-101
-101
+student_id
 ```
 
-for two different students.
+is a good primary key.
 
-### 2. Not be NULL
+But:
 
-Every record must have a value for its primary key.
+```text
+student_name
+```
 
-### 3. Identify one record
+may not be a good primary key because two students can have the same name.
 
 For example:
 
 ```text
-student_id = 101
-```
-
-should identify exactly one student.
-
----
-
-# 13. Why Not Use Name as Primary Key?
-
-Consider:
-
-```text
-Ravi
-Ravi
-Sita
-Arun
+101 | Ravi
+102 | Ravi
 ```
 
 Names are not necessarily unique.
 
-Instead:
+---
 
-```text
-101 → Ravi
-102 → Ravi
-103 → Sita
-104 → Arun
+# 11. Primary Key Example
+
+Later, when we start writing SQL, we can define a primary key like this:
+
+```sql
+CREATE TABLE students (
+    student_id INT PRIMARY KEY,
+    student_name VARCHAR(100),
+    age INT
+);
 ```
 
-Now every student has a unique identifier.
+The important part for now is:
 
-This is why databases commonly use IDs.
+```sql
+student_id INT PRIMARY KEY
+```
 
-Examples:
+This tells the database:
+
+> `student_id` uniquely identifies each student.
+
+---
+
+# 12. What is a Foreign Key?
+
+## Definition
+
+A **Foreign Key** is a column that is used to create a relationship between two tables.
+
+Consider:
+
+### departments
+
+| department_id | department_name |
+| ------------: | --------------- |
+|            10 | IT              |
+|            20 | HR              |
+|            30 | Finance         |
+
+### employees
+
+| employee_id | employee_name | department_id |
+| ----------: | ------------- | ------------: |
+|         101 | Ravi          |            10 |
+|         102 | Sita          |            20 |
+|         103 | Arun          |            10 |
+
+Here:
 
 ```text
-student_id
-employee_id
-product_id
-order_id
-customer_id
+departments.department_id
+```
+
+is the Primary Key.
+
+And:
+
+```text
+employees.department_id
+```
+
+is the Foreign Key.
+
+The relationship is:
+
+```text
+departments
+    │
+    │ department_id
+    ↓
+employees
+```
+
+This allows us to know which department an employee belongs to.
+
+---
+
+# 13. Primary Key vs Foreign Key
+
+This is important.
+
+| Primary Key                      | Foreign Key                         |
+| -------------------------------- | ----------------------------------- |
+| Uniquely identifies a row        | Creates a relationship              |
+| Usually belongs to its own table | Refers to another table             |
+| Cannot be NULL                   | Can be NULL depending on the design |
+| Cannot contain duplicates        | Can contain duplicate values        |
+
+Example:
+
+```text
+departments
+----------------
+department_id ← Primary Key
+
+
+employees
+----------------
+department_id ← Foreign Key
 ```
 
 ---
 
-# 14. What is a Foreign Key?
+# 14. What is NULL?
 
-Now let's create another table.
+`NULL` means:
 
-### Departments
+> **No value / unknown / not available**
 
-| dept_id | dept_name |
-| ------: | --------- |
-|       1 | CSE       |
-|       2 | ECE       |
-|       3 | EEE       |
-
-And our Students table:
-
-| student_id | name  | dept_id |
-| ---------: | ----- | ------: |
-|        101 | Ravi  |       1 |
-|        102 | Sita  |       2 |
-|        103 | Arun  |       1 |
-|        104 | Priya |       3 |
-
-Notice something?
-
-The `dept_id` in the Students table refers to the `dept_id` in the Departments table.
-
-```text
-Departments
-     │
-     │ dept_id
-     ↓
-Students
-```
-
-This is called a **Foreign Key**.
-
-### Simple definition
-
-> **Foreign Key = A column that refers to a key in another table and helps establish a relationship between tables.**
-
----
-
-# 15. Primary Key vs Foreign Key
-
-| Primary Key                                  | Foreign Key                            |
-| -------------------------------------------- | -------------------------------------- |
-| Identifies a record                          | Connects records between tables        |
-| Must uniquely identify rows                  | Values may repeat                      |
-| Cannot be NULL                               | Can be NULL in appropriate designs     |
-| Usually one primary key constraint per table | A table can have multiple foreign keys |
-| Example: `student_id`                        | Example: `dept_id`                     |
-
-### Easy way to remember
-
-> **Primary Key → Who am I?**
-
-> **Foreign Key → Which other table am I connected to?**
-
----
-
-# 16. What is a Relationship?
-
-Now we can connect tables.
-
-We have:
-
-### Departments
-
-```text
-1 → CSE
-2 → ECE
-3 → EEE
-```
-
-### Students
-
-```text
-101 → Ravi → 1
-102 → Sita → 2
-103 → Arun → 1
-104 → Priya → 3
-```
-
-We can understand:
-
-```text
-Ravi  → CSE
-Sita  → ECE
-Arun  → CSE
-Priya → EEE
-```
-
-The relationship is created using:
-
-```text
-Departments.dept_id
-        ↓
-Students.dept_id
-```
-
----
-
-# 17. Why Do We Use Multiple Tables?
-
-Why not store everything in one giant table?
-
-For example:
-
-| student_id | student_name | dept_id | dept_name | faculty | course |
-| ---------- | ------------ | ------- | --------- | ------- | ------ |
-
-Imagine thousands of students.
-
-We would repeatedly store:
-
-```text
-CSE
-Computer Science and Engineering
-```
-
-again and again.
-
-This creates unnecessary duplication.
-
-Instead, we separate the information:
-
-```text
-Departments
-Students
-Faculty
-Courses
-```
-
-and connect them using keys.
-
-This is one of the fundamental ideas behind relational databases.
-
----
-
-# 18. What is NULL?
-
-NULL is one of the most misunderstood concepts in SQL.
-
-Suppose we have:
-
-| student_id | name | phone      |
-| ---------: | ---- | ---------- |
-|        101 | Ravi | 9876543210 |
-|        102 | Sita | NULL       |
-
-What does NULL mean?
-
-It means:
-
-> **The value is unknown, unavailable, or not provided.**
-
-It does **not** necessarily mean:
+It does **not** mean:
 
 ```text
 0
@@ -741,388 +518,716 @@ It does **not** necessarily mean:
 It does **not** mean:
 
 ```text
-empty string
+empty string ''
 ```
 
-It does **not** mean:
+It means there is no value stored for that field.
+
+Example:
+
+| employee_id | employee_name | manager_id |
+| ----------: | ------------- | ---------: |
+|         101 | Ravi          |       NULL |
+|         102 | Sita          |        101 |
+
+Here:
 
 ```text
-false
+Ravi → manager_id = NULL
 ```
 
-### Example
-
-If Sita has not provided her phone number:
-
-```text
-phone = NULL
-```
-
-We don't know the phone number.
+This could mean Ravi currently has no manager recorded.
 
 ---
 
-# 19. NULL vs 0 vs Empty
+# 15. NULL vs 0 vs Empty String
 
-These are different concepts.
+These are different.
 
-| Value  | Meaning                           |
-| ------ | --------------------------------- |
-| `NULL` | Unknown / missing / not available |
-| `0`    | Numeric value zero                |
-| `''`   | Empty string                      |
-| `' '`  | Space character                   |
+```text
+NULL
+→ No value
+
+0
+→ Numeric value zero
+
+''
+→ Empty text
+```
 
 Example:
 
 ```text
-Age = 0
+salary = 0
 ```
 
-means the value is zero.
+means the salary value is zero.
 
 But:
 
 ```text
-Age = NULL
+salary = NULL
 ```
 
-means we don't have a value.
+means the salary is unknown/not available.
 
 ---
 
-# 20. Basic Relational Model
+# 16. What is a Relationship Between Tables?
 
-Now let's bring everything together.
+A relationship defines how data in one table is connected to data in another table.
 
-A relational database organizes data into **relations**, which are commonly represented as tables.
-
-For beginners, think:
+Example:
 
 ```text
-Relation ≈ Table
-Tuple    ≈ Row
-Attribute ≈ Column
+departments
+     │
+     │ department_id
+     ↓
+employees
+```
+
+A department can have multiple employees.
+
+For example:
+
+```text
+IT
+│
+├── Ravi
+├── Arun
+└── Kiran
+```
+
+This is a relationship between:
+
+```text
+Department
+      ↓
+Employees
+```
+
+---
+
+# 17. Types of Relationships
+
+The common relationships are:
+
+```text
+1. One-to-One
+2. One-to-Many
+3. Many-to-Many
+```
+
+---
+
+## One-to-One
+
+One record in Table A is related to one record in Table B.
+
+Example:
+
+```text
+Person
+  ↓
+Passport
+```
+
+One person has one passport.
+
+---
+
+## One-to-Many
+
+One record in Table A can be related to many records in Table B.
+
+Example:
+
+```text
+Department
+     ↓
+Employees
+```
+
+One department can have many employees.
+
+```text
+IT
+├── Ravi
+├── Arun
+└── Kiran
+```
+
+This is one of the most common relationships.
+
+---
+
+## Many-to-Many
+
+Many records in Table A can be related to many records in Table B.
+
+Example:
+
+```text
+Students
+    ↕
+Courses
+```
+
+One student can take multiple courses.
+
+One course can have multiple students.
+
+Usually, a third table is used to manage this relationship:
+
+```text
+students
+    ↓
+enrollments
+    ↓
+courses
+```
+
+---
+
+# 18. Basic Relational Model
+
+A relational database stores data in **tables** and connects related tables using keys.
+
+Example:
+
+```text
+                College Database
+                       │
+          ┌────────────┼────────────┐
+          ↓            ↓            ↓
+      Students      Courses     Departments
+          │
+          ↓
+      Enrollments
+```
+
+Tables contain:
+
+```text
+Rows
+ +
+Columns
+```
+
+Relationships are created using:
+
+```text
+Primary Keys
+      +
+Foreign Keys
+```
+
+---
+
+# 19. Simple Real-World Example
+
+Imagine an online shopping application.
+
+We may have:
+
+```text
+customers
+products
+orders
+```
+
+### Customers
+
+| customer_id | customer_name |
+| ----------: | ------------- |
+|           1 | Ravi          |
+|           2 | Sita          |
+
+### Products
+
+| product_id | product_name | price |
+| ---------: | ------------ | ----: |
+|        101 | Laptop       | 60000 |
+|        102 | Mouse        |  1000 |
+
+### Orders
+
+| order_id | customer_id | product_id |
+| -------: | ----------: | ---------: |
+|     5001 |           1 |        101 |
+|     5002 |           2 |        102 |
+
+Relationships:
+
+```text
+customers
+    ↓
+customer_id
+    ↓
+orders
+    ↓
+product_id
+    ↓
+products
+```
+
+Later, SQL JOINs will allow us to combine this information.
+
+---
+
+# 20. Best Practices
+
+Even at the fundamentals stage, students should develop good habits.
+
+### Use meaningful table names
+
+Good:
+
+```text
+employees
+departments
+customers
+orders
+```
+
+Avoid unclear names such as:
+
+```text
+t1
+data1
+abc
+```
+
+### Use meaningful column names
+
+Good:
+
+```text
+employee_id
+employee_name
+department_id
+```
+
+Instead of:
+
+```text
+id1
+name1
+dpt
+```
+
+### Identify the Primary Key
+
+Every important table should have a clear way to identify its records.
+
+### Understand relationships
+
+Before writing queries, ask:
+
+> How are these tables connected?
+
+---
+
+# 21. Common Errors / Misunderstandings
+
+### 1. Thinking a database and table are the same
+
+Incorrect:
+
+```text
+Database = Table
+```
+
+Correct:
+
+```text
+Database
+   ↓
+Contains tables
+```
+
+---
+
+### 2. Thinking a row and column are the same
+
+Remember:
+
+```text
+Row
+→ Record
+
+Column
+→ Attribute
+```
+
+---
+
+### 3. Thinking NULL means zero
+
+Incorrect:
+
+```text
+NULL = 0
+```
+
+Correct:
+
+```text
+NULL
+→ No value / unknown
+```
+
+---
+
+### 4. Using a non-unique column as a Primary Key
+
+For example:
+
+```text
+employee_name
+```
+
+may not be unique.
+
+Two employees can have the same name.
+
+An employee ID is usually more suitable:
+
+```text
+employee_id
+```
+
+---
+
+### 5. Confusing Primary Key and Foreign Key
+
+Remember:
+
+```text
+Primary Key
+→ Identifies a record
+
+Foreign Key
+→ Connects tables
+```
+
+---
+
+# 22. Interview Questions
+
+### Beginner
+
+1. What is a database?
+2. Why do we need a database?
+3. What is DBMS?
+4. Give examples of DBMS.
+5. What is the difference between a file system and DBMS?
+6. What is a table?
+7. What is a row?
+8. What is a column?
+9. What is a record?
+10. What is an attribute?
+
+### Keys
+
+11. What is a Primary Key?
+12. What are the properties of a Primary Key?
+13. What is a Foreign Key?
+14. What is the difference between Primary Key and Foreign Key?
+15. Can a Foreign Key contain duplicate values?
+
+### Relationships
+
+16. What is a relationship between tables?
+17. What is a one-to-one relationship?
+18. What is a one-to-many relationship?
+19. What is a many-to-many relationship?
+20. Why do we need Foreign Keys?
+
+### NULL
+
+21. What is NULL?
+22. Is NULL equal to zero?
+23. Is NULL equal to an empty string?
+24. Why can a column contain NULL?
+
+---
+
+# 23. Exercises
+
+## Exercise 1 — Identify Database Objects
+
+Consider:
+
+```text
+College Database
+```
+
+with:
+
+```text
+students
+teachers
+courses
+departments
+```
+
+Identify:
+
+1. Database
+2. Tables
+3. Possible rows
+4. Possible columns
+
+---
+
+## Exercise 2 — Identify Rows and Columns
+
+Consider:
+
+| employee_id | employee_name | department | salary |
+| ----------: | ------------- | ---------- | -----: |
+|         101 | Ravi          | IT         |  45000 |
+|         102 | Sita          | HR         |  50000 |
+|         103 | Arun          | IT         |  55000 |
+
+Answer:
+
+1. How many rows?
+2. How many columns?
+3. What is one record?
+4. What is the `salary` column?
+5. Which column could be the Primary Key?
+
+---
+
+## Exercise 3 — Identify the Keys
+
+Consider:
+
+### departments
+
+| department_id | department_name |
+| ------------: | --------------- |
+|            10 | IT              |
+|            20 | HR              |
+
+### employees
+
+| employee_id | employee_name | department_id |
+| ----------: | ------------- | ------------: |
+|         101 | Ravi          |            10 |
+|         102 | Sita          |            20 |
+
+Identify:
+
+1. Primary Key in `departments`
+2. Primary Key in `employees`
+3. Foreign Key in `employees`
+4. Relationship between the two tables
+
+---
+
+## Exercise 4 — Identify the Relationship
+
+Identify the relationship:
+
+### A
+
+```text
+Department → Employees
+```
+
+### B
+
+```text
+Person → Passport
+```
+
+### C
+
+```text
+Students ↔ Courses
+```
+
+Choose:
+
+```text
+One-to-One
+One-to-Many
+Many-to-Many
+```
+
+---
+
+## Exercise 5 — NULL
+
+Consider:
+
+| employee_id | employee_name | manager_id |
+| ----------: | ------------- | ---------: |
+|         101 | Ravi          |       NULL |
+|         102 | Sita          |        101 |
+|         103 | Arun          |        101 |
+
+Answer:
+
+1. Which employee has a NULL `manager_id`?
+2. Does NULL mean zero?
+3. Does NULL mean an empty string?
+4. What could NULL represent in this example?
+
+---
+
+# 24. Real Project Example
+
+## Project: Employee Management System
+
+Imagine we are building an Employee Management System.
+
+We need to store:
+
+```text
+Employee information
+Department information
+```
+
+So we create two tables:
+
+```text
+departments
+        │
+        │ department_id
+        ↓
+employees
+```
+
+### Department Table
+
+```text
+departments
+
+department_id
+department_name
 ```
 
 Example:
 
-### Student Relation
+| department_id | department_name |
+| ------------: | --------------- |
+|            10 | IT              |
+|            20 | HR              |
+|            30 | Finance         |
 
-| student_id | name | age | dept_id |
-| ---------: | ---- | --: | ------: |
-|        101 | Ravi |  20 |       1 |
-|        102 | Sita |  21 |       2 |
-|        103 | Arun |  20 |       1 |
-
-In relational-model terminology:
+### Employee Table
 
 ```text
-Table      → Relation
-Row        → Tuple
-Column     → Attribute
+employees
+
+employee_id
+employee_name
+department_id
+salary
 ```
 
-These terms will appear frequently in DBMS examinations.
+Example:
+
+| employee_id | employee_name | department_id | salary |
+| ----------: | ------------- | ------------: | -----: |
+|         101 | Ravi          |            10 |  45000 |
+|         102 | Sita          |            20 |  50000 |
+|         103 | Arun          |            10 |  55000 |
+
+Here:
+
+```text
+departments.department_id
+        ↓
+Primary Key
+
+employees.department_id
+        ↓
+Foreign Key
+```
+
+The relationship is:
+
+```text
+Department
+    │
+    │ One
+    ↓
+Employees
+    │
+    │ Many
+    ↓
+Many employees can belong to one department
+```
+
+Later in the course, we will use SQL `JOIN` to combine these tables and answer questions such as:
+
+```text
+Which department does Ravi work in?
+
+How many employees are in IT?
+
+What is the average salary of each department?
+```
 
 ---
 
-# 21. Putting Everything Together
-
-Let's build a simple mental model.
-
-```text
-                    COLLEGE DATABASE
-                           │
-          ┌────────────────┼────────────────┐
-          │                │                │
-          ↓                ↓                ↓
-     DEPARTMENTS       STUDENTS          COURSES
-          │                │                │
-          │                │                │
-          └───────┐        │        ┌───────┘
-                  │        │        │
-                  └────────┴────────┘
-                       RELATIONSHIPS
-```
-
-### Departments
-
-```text
-dept_id
-dept_name
-```
-
-### Students
-
-```text
-student_id
-name
-age
-dept_id
-```
-
-### Courses
-
-```text
-course_id
-course_name
-credits
-```
-
-The keys allow us to connect these tables.
-
----
-
-# 22. The Big Picture
-
-At this point, remember these relationships:
+# 25. Phase 0 — Quick Revision
 
 ```text
 Database
-   │
-   ├── contains
-   ↓
- Tables
-   │
-   ├── contain
-   ↓
- Rows + Columns
-   │      │
-   │      └── Column = Attribute
-   │
-   └── Row = Record
-```
+→ Collection of organized data
 
-And:
+DBMS
+→ Software used to manage databases
 
-```text
+Table
+→ Stores data in rows and columns
+
+Row / Record
+→ One complete record
+
+Column / Attribute
+→ One type of information
+
 Primary Key
-     │
-     └── uniquely identifies a row
-```
+→ Uniquely identifies a record
 
-```text
 Foreign Key
-     │
-     └── connects one table with another
-```
+→ Connects related tables
 
-And:
-
-```text
 NULL
-  │
-  └── value is unknown / unavailable / not provided
+→ No value / unknown value
+
+Relationship
+→ Connection between tables
 ```
 
----
-
-# 23. One Simple Real-World Example
-
-Imagine an online shopping application.
-
-There are thousands of customers.
-
-### Customers
+### The complete picture
 
 ```text
-customer_id
-name
-email
-phone
-```
-
-### Products
-
-```text
-product_id
-product_name
-price
-```
-
-### Orders
-
-```text
-order_id
-customer_id
-order_date
-```
-
-### Order Items
-
-```text
-order_id
-product_id
-quantity
-```
-
-Now we have relationships:
-
-```text
-CUSTOMER
-   │
-   │ customer_id
-   ↓
-ORDER
-   │
-   │ order_id
-   ↓
-ORDER_ITEM
-   │
-   │ product_id
-   ↓
-PRODUCT
-```
-
-This is the type of structure that real applications use.
-
-Later, SQL will allow us to ask questions such as:
-
-```text
-Which customers placed orders?
-
-Which products were purchased?
-
-How many products were sold?
-
-What is the total order amount?
-
-Which customer spent the most?
-
-Which products have never been purchased?
-```
-
-We will answer these questions using **SQL**.
-
----
-
-# 24. Quick Revision
-
-Before moving to SQL, you should be able to answer these questions.
-
-### Q1. What is a database?
-
-**Answer:**
-An organized collection of related data.
-
-### Q2. What is a DBMS?
-
-**Answer:**
-Software used to create, manage, store, retrieve, and control data in databases.
-
-### Q3. Give examples of DBMS.
-
-**Answer:**
-
-```text
-MySQL
-PostgreSQL
-Oracle
-SQL Server
-SQLite
-```
-
-### Q4. What is a table?
-
-**Answer:**
-A structured collection of related data organized into rows and columns.
-
-### Q5. What is a row?
-
-**Answer:**
-A row represents one record.
-
-### Q6. What is a column?
-
-**Answer:**
-A column represents an attribute or type of information.
-
-### Q7. What is a primary key?
-
-**Answer:**
-A column or combination of columns that uniquely identifies each row.
-
-### Q8. What is a foreign key?
-
-**Answer:**
-A column that references a key in another table and establishes a relationship between tables.
-
-### Q9. What is NULL?
-
-**Answer:**
-NULL represents a missing, unknown, or unavailable value.
-
-### Q10. What is the relationship between a database and a table?
-
-**Answer:**
-A database can contain multiple related tables.
-
----
-
-# 25. Before Moving to SQL
-
-Make sure you can understand this diagram:
-
-```text
-                         DATABASE
-                            │
-             ┌──────────────┼──────────────┐
-             │              │              │
-             ↓              ↓              ↓
-        DEPARTMENTS      STUDENTS       COURSES
-             │              │              │
-             │              │              │
-             │        ┌─────┴─────┐        │
-             │        │           │        │
-             │        ↓           ↓        │
-             │    PRIMARY KEY  FOREIGN KEY │
-             │        │           │        │
-             └────────┴───────────┴────────┘
+                    DATABASE
                        │
-                       ↓
-                  RELATIONSHIP
+              ┌────────┼────────┐
+              ↓        ↓        ↓
+           Table     Table     Table
+              │        │        │
+              ↓        ↓        ↓
+            Rows     Rows     Rows
+              │
+           Columns
+              │
+        ┌─────┴─────┐
+        ↓           ↓
+   Primary Key   Foreign Key
+                    │
+                    ↓
+              Relationships
 ```
 
-If this diagram makes sense, you are ready to start SQL.
-
----
-
-# 🚀 Next Phase
-
-Now we can finally ask:
-
-> **How do we create these tables and work with the data?**
-
-The answer is:
-
-# SQL
-
-In the next phase, we will learn:
-
-```text
-CREATE
-INSERT
-SELECT
-UPDATE
-DELETE
-```
-
-Then we will gradually move to:
-
-```text
-WHERE
-Functions
-GROUP BY
-HAVING
-JOINS
-Subqueries
-Views
-Set Operations
-```
-
-**Don't memorize SQL commands yet.**
-
-First understand the database.
-
-Then SQL becomes much easier.
+> **Before learning SQL commands, understand how data is organized. Once students understand databases, tables, rows, columns, keys, NULL, and relationships, SQL becomes much easier to learn.**
