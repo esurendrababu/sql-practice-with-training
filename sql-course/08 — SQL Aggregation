@@ -1,0 +1,1746 @@
+# 08 — SQL Aggregation
+
+> **Turning many rows into useful summary information**
+
+So far, we have learned how to work with individual rows.
+
+For example:
+
+```sql
+SELECT *
+FROM employees;
+```
+
+This gives us employee records.
+
+But in real-world applications, we often need questions like:
+
+```text
+How many employees are there?
+
+What is the total salary?
+
+What is the average salary?
+
+What is the highest salary?
+
+What is the lowest salary?
+```
+
+We don't want to manually calculate these values.
+
+SQL provides **aggregate functions** for this purpose.
+
+---
+
+# 1. What Is Aggregation?
+
+Aggregation means:
+
+> **Combining multiple rows and producing a summary result.**
+
+For example, suppose we have:
+
+| employee_name | salary |
+| ------------- | -----: |
+| Ravi          |  45000 |
+| Sita          |  52000 |
+| Arun          |  48000 |
+| Priya         |  65000 |
+
+Instead of returning four rows, we can calculate:
+
+```text
+Total salary = 210000
+```
+
+This is aggregation.
+
+Think:
+
+```text
+Many rows
+    ↓
+Aggregate Function
+    ↓
+One summary result
+```
+
+---
+
+# 2. Aggregate Functions
+
+The five fundamental aggregate functions are:
+
+```text
+COUNT()
+SUM()
+AVG()
+MIN()
+MAX()
+```
+
+We will learn each one carefully.
+
+---
+
+# 3. Practice Table
+
+We will use this table throughout the chapter.
+
+```sql
+CREATE TABLE employees (
+    employee_id INT PRIMARY KEY,
+    employee_name VARCHAR(100),
+    department VARCHAR(50),
+    salary DECIMAL(10,2),
+    bonus DECIMAL(10,2),
+    age INT
+);
+```
+
+Insert sample data:
+
+```sql
+INSERT INTO employees
+    (employee_id, employee_name, department, salary, bonus, age)
+VALUES
+    (101, 'Ravi', 'IT', 45000, 5000, 25),
+    (102, 'Sita', 'HR', 52000, NULL, 28),
+    (103, 'Arun', 'IT', 48000, 3000, 24),
+    (104, 'Priya', 'Finance', 65000, 7000, 30),
+    (105, 'Kiran', 'IT', 55000, NULL, 26),
+    (106, 'Anil', 'HR', 47000, 4000, 29),
+    (107, 'Meena', 'Finance', 58000, 6000, 27),
+    (108, 'Arjun', 'IT', 42000, NULL, 23);
+```
+
+---
+
+# 4. COUNT()
+
+`COUNT()` tells us how many values or rows there are.
+
+This is one of the most commonly used aggregate functions.
+
+---
+
+# 5. COUNT(*)
+
+To count all rows:
+
+```sql
+SELECT COUNT(*)
+FROM employees;
+```
+
+Result:
+
+```text
+8
+```
+
+There are 8 employees.
+
+The `*` means:
+
+> Count rows.
+
+---
+
+# 6. COUNT(column)
+
+We can also count values in a specific column.
+
+```sql
+SELECT COUNT(employee_name)
+FROM employees;
+```
+
+If every employee has a name, the result is:
+
+```text
+8
+```
+
+But there is an important difference when `NULL` values exist.
+
+---
+
+# 7. COUNT(*) vs COUNT(column)
+
+Suppose:
+
+| employee_id | employee_name |
+| ----------: | ------------- |
+|         101 | Ravi          |
+|         102 | Sita          |
+|         103 | Arun          |
+|         104 | NULL          |
+
+Then:
+
+```sql
+SELECT COUNT(*)
+FROM employees;
+```
+
+returns:
+
+```text
+4
+```
+
+But:
+
+```sql
+SELECT COUNT(employee_name)
+FROM employees;
+```
+
+returns:
+
+```text
+3
+```
+
+Why?
+
+Because:
+
+```text
+COUNT(*)
+→ counts rows
+
+COUNT(column)
+→ counts non-NULL values in that column
+```
+
+This distinction is extremely important.
+
+---
+
+# 8. COUNT(DISTINCT)
+
+We can count unique values.
+
+Suppose departments are:
+
+```text
+IT
+HR
+IT
+Finance
+IT
+HR
+Finance
+IT
+```
+
+We can write:
+
+```sql
+SELECT COUNT(DISTINCT department)
+FROM employees;
+```
+
+Result:
+
+```text
+3
+```
+
+Because the unique departments are:
+
+```text
+IT
+HR
+Finance
+```
+
+---
+
+# 9. COUNT() Examples
+
+### Number of employees
+
+```sql
+SELECT COUNT(*)
+FROM employees;
+```
+
+### Number of employees with a bonus
+
+```sql
+SELECT COUNT(bonus)
+FROM employees;
+```
+
+Because `COUNT(bonus)` ignores `NULL` values.
+
+### Number of unique departments
+
+```sql
+SELECT COUNT(DISTINCT department)
+FROM employees;
+```
+
+---
+
+# 10. SUM()
+
+`SUM()` calculates the total of a numeric column.
+
+Example:
+
+```sql
+SELECT SUM(salary)
+FROM employees;
+```
+
+This gives the total salary of all employees.
+
+For our sample data:
+
+```text
+45000
++ 52000
++ 48000
++ 65000
++ 55000
++ 47000
++ 58000
++ 42000
+----------------
+412000
+```
+
+Result:
+
+```text
+412000
+```
+
+---
+
+# 11. SUM() with Bonus
+
+We can calculate total bonuses:
+
+```sql
+SELECT SUM(bonus)
+FROM employees;
+```
+
+Remember:
+
+```text
+NULL values are ignored by SUM()
+```
+
+So only employees with actual bonus values contribute to the total.
+
+---
+
+# 12. SUM() with WHERE
+
+Aggregate functions can be combined with filtering.
+
+Question:
+
+> What is the total salary of IT employees?
+
+```sql
+SELECT SUM(salary)
+FROM employees
+WHERE department = 'IT';
+```
+
+The process is:
+
+```text
+employees
+    ↓
+WHERE department = 'IT'
+    ↓
+IT employees
+    ↓
+SUM(salary)
+    ↓
+Total IT salary
+```
+
+This is an important SQL pattern.
+
+---
+
+# 13. AVG()
+
+`AVG()` calculates the average value.
+
+Example:
+
+```sql
+SELECT AVG(salary)
+FROM employees;
+```
+
+Conceptually:
+
+```text
+Total salary
+     ÷
+Number of applicable salary values
+     =
+Average salary
+```
+
+For our sample data:
+
+```text
+412000 ÷ 8
+= 51500
+```
+
+Result:
+
+```text
+51500
+```
+
+---
+
+# 14. AVG() and NULL
+
+`AVG()` ignores `NULL` values.
+
+Suppose:
+
+| employee | bonus |
+| -------- | ----: |
+| Ravi     |  5000 |
+| Sita     |  NULL |
+| Arun     |  3000 |
+
+Then:
+
+```sql
+SELECT AVG(bonus)
+FROM employees;
+```
+
+does not treat `NULL` as zero.
+
+It calculates the average using the available non-NULL bonus values.
+
+This distinction matters:
+
+```text
+NULL
+≠
+0
+```
+
+---
+
+# 15. MIN()
+
+`MIN()` returns the smallest value.
+
+Example:
+
+```sql
+SELECT MIN(salary)
+FROM employees;
+```
+
+Result:
+
+```text
+42000
+```
+
+So the lowest salary is 42,000.
+
+---
+
+# 16. MAX()
+
+`MAX()` returns the largest value.
+
+```sql
+SELECT MAX(salary)
+FROM employees;
+```
+
+Result:
+
+```text
+65000
+```
+
+So the highest salary is 65,000.
+
+---
+
+# 17. Using All Aggregate Functions Together
+
+We can use multiple aggregate functions in one query.
+
+```sql
+SELECT
+    COUNT(*) AS employee_count,
+    SUM(salary) AS total_salary,
+    AVG(salary) AS average_salary,
+    MIN(salary) AS minimum_salary,
+    MAX(salary) AS maximum_salary
+FROM employees;
+```
+
+Result:
+
+| employee_count | total_salary | average_salary | minimum_salary | maximum_salary |
+| -------------: | -----------: | -------------: | -------------: | -------------: |
+|              8 |       412000 |          51500 |          42000 |          65000 |
+
+This is a very common reporting query.
+
+---
+
+# 18. Why Aliases Are Important
+
+Without aliases:
+
+```sql
+SELECT
+    COUNT(*),
+    SUM(salary),
+    AVG(salary),
+    MIN(salary),
+    MAX(salary)
+FROM employees;
+```
+
+The output column names may not be very readable.
+
+Better:
+
+```sql
+SELECT
+    COUNT(*) AS employee_count,
+    SUM(salary) AS total_salary,
+    AVG(salary) AS average_salary,
+    MIN(salary) AS minimum_salary,
+    MAX(salary) AS maximum_salary
+FROM employees;
+```
+
+Now the result is easier to understand.
+
+---
+
+# 19. Aggregation with Filtering
+
+Suppose we ask:
+
+> How many IT employees are there?
+
+```sql
+SELECT COUNT(*)
+FROM employees
+WHERE department = 'IT';
+```
+
+---
+
+Question:
+
+> What is the average salary of IT employees?
+
+```sql
+SELECT AVG(salary)
+FROM employees
+WHERE department = 'IT';
+```
+
+---
+
+Question:
+
+> What is the highest salary in Finance?
+
+```sql
+SELECT MAX(salary)
+FROM employees
+WHERE department = 'Finance';
+```
+
+---
+
+# 20. The Order of Thinking
+
+When solving aggregation questions, teach students to think in this order:
+
+```text
+1. Which table?
+       ↓
+2. Which rows?
+       ↓
+3. Which calculation?
+       ↓
+4. Which column?
+```
+
+Example:
+
+> What is the average salary of IT employees?
+
+Think:
+
+```text
+Table
+→ employees
+
+Rows
+→ department = 'IT'
+
+Calculation
+→ AVG
+
+Column
+→ salary
+```
+
+Then write:
+
+```sql
+SELECT AVG(salary)
+FROM employees
+WHERE department = 'IT';
+```
+
+---
+
+# 21. Aggregation Does Not Always Mean GROUP BY
+
+This is an important beginner concept.
+
+You can use aggregate functions without `GROUP BY`.
+
+Example:
+
+```sql
+SELECT AVG(salary)
+FROM employees;
+```
+
+This calculates one average for the selected rows.
+
+`GROUP BY` is used when we want **separate aggregate results for different groups**.
+
+For example:
+
+```text
+IT → average salary
+HR → average salary
+Finance → average salary
+```
+
+We will learn that in the next chapter.
+
+---
+
+# 22. Scalar Functions vs Aggregate Functions
+
+Students should now understand the difference.
+
+### Scalar function
+
+Works with individual values.
+
+Examples:
+
+```text
+UPPER()
+LOWER()
+LENGTH()
+ROUND()
+COALESCE()
+```
+
+Example:
+
+```sql
+SELECT UPPER(employee_name)
+FROM employees;
+```
+
+Result:
+
+```text
+RAVI
+SITA
+ARUN
+...
+```
+
+One result per row.
+
+---
+
+### Aggregate function
+
+Combines values from multiple rows.
+
+Examples:
+
+```text
+COUNT()
+SUM()
+AVG()
+MIN()
+MAX()
+```
+
+Example:
+
+```sql
+SELECT AVG(salary)
+FROM employees;
+```
+
+One summary result.
+
+---
+
+# 23. Visual Difference
+
+### Scalar
+
+```text
+Ravi
+ ↓
+UPPER()
+ ↓
+RAVI
+
+Sita
+ ↓
+UPPER()
+ ↓
+SITA
+
+Arun
+ ↓
+UPPER()
+ ↓
+ARUN
+```
+
+### Aggregate
+
+```text
+45000
+52000
+48000
+65000
+55000
+47000
+58000
+42000
+    ↓
+  AVG()
+    ↓
+  51500
+```
+
+Remember:
+
+> **Scalar functions transform values. Aggregate functions summarize values.**
+
+---
+
+# 24. Aggregate Functions and NULL
+
+This is one of the most important topics in this chapter.
+
+Consider:
+
+| employee | bonus |
+| -------- | ----: |
+| Ravi     |  5000 |
+| Sita     |  NULL |
+| Arun     |  3000 |
+| Priya    |  7000 |
+
+What does:
+
+```sql
+SELECT SUM(bonus)
+FROM employees;
+```
+
+do?
+
+It ignores `NULL`.
+
+Similarly:
+
+```sql
+AVG(bonus)
+MIN(bonus)
+MAX(bonus)
+```
+
+generally ignore `NULL` values.
+
+---
+
+# 25. COUNT and NULL Are Different
+
+Remember:
+
+```text
+COUNT(*)
+→ counts rows
+
+COUNT(column)
+→ counts non-NULL values
+
+SUM(column)
+→ ignores NULL
+
+AVG(column)
+→ ignores NULL
+
+MIN(column)
+→ ignores NULL
+
+MAX(column)
+→ ignores NULL
+```
+
+This table should be memorized.
+
+---
+
+# 26. What Happens When There Are No Rows?
+
+Consider:
+
+```sql
+SELECT SUM(salary)
+FROM employees
+WHERE department = 'XYZ';
+```
+
+If there are no matching rows, aggregate functions such as `SUM()` and `AVG()` can return `NULL`.
+
+But:
+
+```sql
+SELECT COUNT(*)
+FROM employees
+WHERE department = 'XYZ';
+```
+
+returns:
+
+```text
+0
+```
+
+This is another important difference.
+
+---
+
+# 27. COALESCE with Aggregation
+
+Because aggregate functions can return `NULL`, we can use `COALESCE()`.
+
+Example:
+
+```sql
+SELECT COALESCE(SUM(salary), 0) AS total_salary
+FROM employees
+WHERE department = 'XYZ';
+```
+
+Now, if there are no matching salary values, we can display:
+
+```text
+0
+```
+
+instead of:
+
+```text
+NULL
+```
+
+---
+
+# 28. ROUND with AVG
+
+Aggregate functions can be combined with scalar functions.
+
+For example:
+
+```sql
+SELECT ROUND(AVG(salary), 2) AS average_salary
+FROM employees;
+```
+
+Think:
+
+```text
+salary values
+     ↓
+   AVG()
+     ↓
+average
+     ↓
+ ROUND()
+     ↓
+final result
+```
+
+---
+
+# 29. SUM with Arithmetic
+
+We can perform calculations before or around aggregation.
+
+Example:
+
+```sql
+SELECT SUM(salary * 0.10) AS total_bonus
+FROM employees;
+```
+
+This calculates 10% of each salary and then adds those values.
+
+Conceptually:
+
+```text
+salary
+  ↓
+salary × 10%
+  ↓
+SUM()
+  ↓
+Total
+```
+
+---
+
+# 30. Total Salary Including Bonus
+
+If we want total salary plus bonus:
+
+```sql
+SELECT
+    SUM(salary + COALESCE(bonus, 0)) AS total_compensation
+FROM employees;
+```
+
+Why use `COALESCE()`?
+
+Because:
+
+```text
+salary + NULL
+```
+
+can produce:
+
+```text
+NULL
+```
+
+Instead:
+
+```sql
+salary + COALESCE(bonus, 0)
+```
+
+treats missing bonus as zero for this calculation.
+
+---
+
+# 31. MIN and MAX with Dates
+
+Aggregate functions are not limited to numbers.
+
+For example, if we have:
+
+```text
+joining_date
+```
+
+we can find the earliest joining date:
+
+```sql
+SELECT MIN(joining_date)
+FROM employees;
+```
+
+And the latest joining date:
+
+```sql
+SELECT MAX(joining_date)
+FROM employees;
+```
+
+So:
+
+```text
+MIN(date)
+→ earliest date
+
+MAX(date)
+→ latest date
+```
+
+---
+
+# 32. MIN and MAX with Text
+
+Some databases can also apply `MIN()` and `MAX()` to character data according to their comparison/collation rules.
+
+However, for beginner teaching, focus primarily on numeric and date examples.
+
+The exact ordering of textual values depends on the DBMS and collation.
+
+---
+
+# 33. Aggregation with DISTINCT
+
+We can combine `DISTINCT` with aggregation.
+
+Example:
+
+```sql
+SELECT COUNT(DISTINCT department)
+FROM employees;
+```
+
+This answers:
+
+> How many different departments are there?
+
+Another example:
+
+```sql
+SELECT COUNT(DISTINCT age)
+FROM employees;
+```
+
+This counts the number of different age values.
+
+---
+
+# 34. COUNT(DISTINCT column)
+
+Understand the difference:
+
+```sql
+SELECT COUNT(*)
+FROM employees;
+```
+
+versus:
+
+```sql
+SELECT COUNT(department)
+FROM employees;
+```
+
+versus:
+
+```sql
+SELECT COUNT(DISTINCT department)
+FROM employees;
+```
+
+They answer three different questions:
+
+```text
+COUNT(*)
+→ How many rows?
+
+COUNT(department)
+→ How many non-NULL department values?
+
+COUNT(DISTINCT department)
+→ How many different departments?
+```
+
+---
+
+# 35. Real-World Business Questions
+
+Aggregation is extremely useful in reporting.
+
+For example:
+
+```text
+How many customers do we have?
+
+How much revenue did we generate?
+
+What is the average order value?
+
+What is the highest transaction?
+
+What is the lowest transaction?
+
+How many products are available?
+
+What is the total inventory?
+```
+
+All of these can involve aggregate functions.
+
+---
+
+# 36. Example: Orders Table
+
+Consider:
+
+```sql
+CREATE TABLE orders (
+    order_id INT PRIMARY KEY,
+    customer_name VARCHAR(100),
+    amount DECIMAL(10,2)
+);
+```
+
+Data:
+
+| order_id | customer_name | amount |
+| -------: | ------------- | -----: |
+|        1 | Ravi          |   1000 |
+|        2 | Sita          |   1500 |
+|        3 | Arun          |    750 |
+|        4 | Priya         |   2000 |
+
+---
+
+# 37. Total Revenue
+
+```sql
+SELECT SUM(amount) AS total_revenue
+FROM orders;
+```
+
+Result:
+
+```text
+5250
+```
+
+---
+
+# 38. Average Order Value
+
+```sql
+SELECT AVG(amount) AS average_order_value
+FROM orders;
+```
+
+Result:
+
+```text
+1312.50
+```
+
+---
+
+# 39. Highest Order
+
+```sql
+SELECT MAX(amount) AS highest_order
+FROM orders;
+```
+
+Result:
+
+```text
+2000
+```
+
+---
+
+# 40. Lowest Order
+
+```sql
+SELECT MIN(amount) AS lowest_order
+FROM orders;
+```
+
+Result:
+
+```text
+750
+```
+
+---
+
+# 41. Number of Orders
+
+```sql
+SELECT COUNT(*) AS total_orders
+FROM orders;
+```
+
+Result:
+
+```text
+4
+```
+
+---
+
+# 42. Aggregation with WHERE — Business Example
+
+Question:
+
+> What is the total revenue from orders greater than 1000?
+
+```sql
+SELECT SUM(amount) AS total_revenue
+FROM orders
+WHERE amount > 1000;
+```
+
+The process:
+
+```text
+All orders
+    ↓
+amount > 1000
+    ↓
+Matching orders
+    ↓
+SUM(amount)
+    ↓
+Total
+```
+
+---
+
+# 43. Important: WHERE Happens Before Aggregation
+
+Consider:
+
+```sql
+SELECT SUM(salary)
+FROM employees
+WHERE department = 'IT';
+```
+
+Conceptually:
+
+```text
+FROM employees
+       ↓
+WHERE department = 'IT'
+       ↓
+Remaining rows
+       ↓
+SUM(salary)
+       ↓
+Result
+```
+
+This is important because students will soon learn `GROUP BY` and `HAVING`.
+
+---
+
+# 44. WHERE vs HAVING — Introduction
+
+Do not go deeply into `HAVING` yet.
+
+Just remember:
+
+```text
+WHERE
+→ filters rows before aggregation
+
+HAVING
+→ filters groups after aggregation
+```
+
+We will study `HAVING` in the next chapter.
+
+---
+
+# 45. Common Beginner Mistakes
+
+## Mistake 1 — Using SUM on text
+
+Wrong:
+
+```sql
+SELECT SUM(employee_name)
+FROM employees;
+```
+
+`SUM()` is intended for numeric data.
+
+---
+
+## Mistake 2 — Assuming NULL means zero
+
+These are different:
+
+```text
+NULL
+0
+```
+
+`NULL` means:
+
+> Unknown / missing / not provided.
+
+Zero means:
+
+> The numeric value is actually zero.
+
+---
+
+## Mistake 3 — Using COUNT(column) when you need row count
+
+If you want the number of rows:
+
+```sql
+COUNT(*)
+```
+
+is generally the clearest choice.
+
+---
+
+## Mistake 4 — Forgetting that COUNT(column) ignores NULL
+
+```sql
+COUNT(bonus)
+```
+
+does not count employees whose bonus is `NULL`.
+
+---
+
+## Mistake 5 — Expecting an aggregate query to return every row
+
+This:
+
+```sql
+SELECT AVG(salary)
+FROM employees;
+```
+
+returns one summary result.
+
+It does not return one average salary for each employee.
+
+---
+
+# 46. Practice Questions — Beginner
+
+Using the `employees` table:
+
+### 1.
+
+Find the total number of employees.
+
+### 2.
+
+Find the total salary.
+
+### 3.
+
+Find the average salary.
+
+### 4.
+
+Find the highest salary.
+
+### 5.
+
+Find the lowest salary.
+
+### 6.
+
+Find the total bonus.
+
+### 7.
+
+Count employees who have a bonus.
+
+### 8.
+
+Count the number of unique departments.
+
+### 9.
+
+Find the average age.
+
+### 10.
+
+Find the earliest joining date.
+
+---
+
+# 47. Practice Questions — Filtering + Aggregation
+
+Write SQL queries for:
+
+### 1.
+
+> Count all IT employees.
+
+### 2.
+
+> Find the total IT salary.
+
+### 3.
+
+> Find the average IT salary.
+
+### 4.
+
+> Find the highest HR salary.
+
+### 5.
+
+> Find the lowest Finance salary.
+
+### 6.
+
+> Count employees whose salary is greater than 50,000.
+
+### 7.
+
+> Find the total salary of employees older than 25.
+
+### 8.
+
+> Find the average salary of employees younger than 30.
+
+---
+
+# 48. Practice Questions — NULL
+
+### 1.
+
+Count employees who have a bonus.
+
+### 2.
+
+Find the total bonus.
+
+### 3.
+
+Find the average bonus.
+
+### 4.
+
+Find the highest bonus.
+
+### 5.
+
+Display `0` if the total bonus is NULL.
+
+---
+
+# 49. Practice Questions — Combined
+
+### Question 1
+
+Display:
+
+```text
+employee_count
+total_salary
+average_salary
+minimum_salary
+maximum_salary
+```
+
+for all employees.
+
+---
+
+### Question 2
+
+Display the same information only for IT employees.
+
+---
+
+### Question 3
+
+Find the average salary of employees whose salary is greater than 45,000.
+
+---
+
+### Question 4
+
+Find the total compensation:
+
+```text
+salary + bonus
+```
+
+Treat missing bonus as zero.
+
+---
+
+### Question 5
+
+Find the number of employees with unique departments.
+
+---
+
+# 50. Challenge Questions
+
+### Challenge 1
+
+What is the difference between:
+
+```sql
+COUNT(*)
+```
+
+and:
+
+```sql
+COUNT(bonus)
+```
+
+when some employees have `NULL` bonuses?
+
+Explain it in your own words.
+
+---
+
+### Challenge 2
+
+Write one query that returns:
+
+```text
+total employees
+total salary
+average salary
+highest salary
+lowest salary
+```
+
+---
+
+### Challenge 3
+
+Find the difference between the highest and lowest salary.
+
+Hint:
+
+```sql
+MAX(salary) - MIN(salary)
+```
+
+---
+
+### Challenge 4
+
+Find the total salary of employees whose salary is above the overall average salary.
+
+This is a preview of a future topic because it requires thinking about:
+
+```text
+aggregate
++
+filter
++
+subquery
+```
+
+---
+
+# 51. Interview Questions
+
+Students should be able to answer:
+
+### Beginner
+
+1. What is an aggregate function?
+2. What is `COUNT()`?
+3. What is `SUM()`?
+4. What is `AVG()`?
+5. What is `MIN()`?
+6. What is `MAX()`?
+7. What is the difference between `COUNT(*)` and `COUNT(column)`?
+8. How does `COUNT()` handle NULL?
+
+### Intermediate
+
+9. How does `SUM()` handle NULL?
+10. How does `AVG()` handle NULL?
+11. What happens when `SUM()` has no matching rows?
+12. What is `COUNT(DISTINCT column)`?
+13. Can aggregate functions be used with `WHERE`?
+14. What is the difference between scalar and aggregate functions?
+15. Can `MIN()` and `MAX()` work with dates?
+16. Can aggregate functions be combined with other functions?
+
+---
+
+# 52. Important Mental Model
+
+Students should remember:
+
+```text
+              AGGREGATION
+                   │
+        ┌──────────┼──────────┐
+        │          │          │
+      COUNT       SUM        AVG
+        │          │          │
+      Count       Total     Average
+       
+        ┌──────────┴──────────┐
+        │                     │
+       MIN                   MAX
+        │                     │
+     Smallest               Largest
+```
+
+And:
+
+```text
+Many rows
+    ↓
+Aggregate function
+    ↓
+Summary result
+```
+
+---
+
+# 53. The Five Functions to Remember
+
+| Function  | Question it answers            |
+| --------- | ------------------------------ |
+| `COUNT()` | How many?                      |
+| `SUM()`   | How much in total?             |
+| `AVG()`   | What is the average?           |
+| `MIN()`   | What is the smallest/earliest? |
+| `MAX()`   | What is the largest/latest?    |
+
+A very simple memory trick:
+
+```text
+COUNT → How many?
+SUM   → Total?
+AVG   → Average?
+MIN   → Smallest?
+MAX   → Largest?
+```
+
+---
+
+# 54. What Students Should Know After This Chapter
+
+By the end of `08-aggregation`, students should be able to:
+
+```text
+✓ Explain aggregation
+
+✓ Explain aggregate functions
+
+✓ Use COUNT()
+
+✓ Use COUNT(*)
+
+✓ Use COUNT(column)
+
+✓ Use COUNT(DISTINCT column)
+
+✓ Use SUM()
+
+✓ Use AVG()
+
+✓ Use MIN()
+
+✓ Use MAX()
+
+✓ Understand NULL behavior
+
+✓ Combine aggregation with WHERE
+
+✓ Combine aggregation with DISTINCT
+
+✓ Combine aggregate and scalar functions
+
+✓ Use aliases with aggregate results
+
+✓ Understand aggregation without GROUP BY
+
+✓ Distinguish scalar functions from aggregate functions
+```
+
+---
+
+# 🚀 Next Chapter
+
+So far, we can calculate:
+
+```text
+Total salary
+Average salary
+Highest salary
+Lowest salary
+Number of employees
+```
+
+But now imagine the manager asks:
+
+> What is the average salary **for each department**?
+
+We need:
+
+```text
+IT       → average salary
+HR       → average salary
+Finance  → average salary
+```
+
+That takes us to:
+
+# 09 — GROUP BY & HAVING
+
+We will learn:
+
+```sql
+GROUP BY
+HAVING
+```
+
+and queries such as:
+
+```sql
+SELECT
+    department,
+    COUNT(*) AS employee_count,
+    AVG(salary) AS average_salary
+FROM employees
+GROUP BY department;
+```
+
+Then:
+
+```sql
+HAVING AVG(salary) > 50000;
+```
+
+This is the point where students start moving from **basic SQL querying** into **real data analysis and reporting**.
