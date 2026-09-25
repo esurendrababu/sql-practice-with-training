@@ -1,0 +1,981 @@
+# 07 — SQL Constraints
+
+> **Rules that protect the correctness and integrity of data**
+
+In the previous chapters, we learned how to:
+
+* Create databases and tables
+* Insert, update, and delete data
+* Retrieve data using `SELECT`
+* Filter data using `WHERE`
+* Use SQL functions
+
+Now we need to answer an important question:
+
+> **What stops someone from inserting incorrect data into our database?**
+
+For example:
+
+```text
+Age = -500
+Email = NULL
+Two students have the same student ID
+An employee refers to a department that doesn't exist
+```
+
+A database should be able to prevent invalid data.
+
+This is where **constraints** are used.
+
+---
+
+# 1. What Is a Constraint?
+
+A constraint is a **rule applied to data in a database**.
+
+Think of it as a security guard at the database level.
+
+```text
+Application
+     ↓
+Database
+     ↓
+Constraint
+     ↓
+Valid Data
+```
+
+If the data violates the rule, the database can reject it.
+
+---
+
+# 2. Why Do We Need Constraints?
+
+Suppose we create a student table:
+
+```sql
+CREATE TABLE students (
+    student_id INT,
+    student_name VARCHAR(100),
+    age INT
+);
+```
+
+There is nothing stopping us from inserting:
+
+```sql
+INSERT INTO students
+VALUES (1, NULL, -50);
+```
+
+This could create bad data.
+
+We can add constraints to protect the table.
+
+---
+
+# 3. Types of SQL Constraints
+
+The most important constraints are:
+
+```text
+Constraints
+│
+├── NOT NULL
+├── UNIQUE
+├── PRIMARY KEY
+├── FOREIGN KEY
+├── CHECK
+└── DEFAULT
+```
+
+Some databases also support additional constraints or database-specific behavior, but these six are the core constraints students should understand first.
+
+---
+
+# 4. NOT NULL
+
+`NOT NULL` means:
+
+> This column cannot contain `NULL`.
+
+Example:
+
+```sql
+CREATE TABLE students (
+    student_id INT,
+    student_name VARCHAR(100) NOT NULL
+);
+```
+
+Now `student_name` must have a value.
+
+This is allowed:
+
+```sql
+INSERT INTO students
+VALUES (1, 'Ravi');
+```
+
+This is rejected:
+
+```sql
+INSERT INTO students
+VALUES (2, NULL);
+```
+
+Because:
+
+```text
+student_name
+     ↓
+NOT NULL
+     ↓
+NULL is not allowed
+```
+
+---
+
+# 5. Real-World Example of NOT NULL
+
+Consider an employee:
+
+```text
+employee_id
+employee_name
+department
+salary
+```
+
+We probably don't want an employee record without a name.
+
+```sql
+CREATE TABLE employees (
+    employee_id INT,
+    employee_name VARCHAR(100) NOT NULL,
+    department VARCHAR(50),
+    salary DECIMAL(10,2)
+);
+```
+
+Now the database itself protects the `employee_name` column.
+
+---
+
+# 6. UNIQUE
+
+`UNIQUE` means:
+
+> Values in this column must not be duplicated.
+
+Example:
+
+```sql
+CREATE TABLE students (
+    student_id INT,
+    email VARCHAR(100) UNIQUE
+);
+```
+
+Suppose we insert:
+
+```sql
+INSERT INTO students
+VALUES (1, 'ravi@gmail.com');
+```
+
+This is allowed.
+
+But:
+
+```sql
+INSERT INTO students
+VALUES (2, 'ravi@gmail.com');
+```
+
+will violate the `UNIQUE` constraint.
+
+Why?
+
+```text
+ravi@gmail.com
+       ↓
+already exists
+       ↓
+duplicate
+       ↓
+rejected
+```
+
+---
+
+# 7. UNIQUE Does Not Mean NOT NULL
+
+This is an important distinction.
+
+Consider:
+
+```sql
+email VARCHAR(100) UNIQUE
+```
+
+`UNIQUE` prevents duplicate values, but it is not the same rule as `NOT NULL`.
+
+If the column must always contain an email, write:
+
+```sql
+email VARCHAR(100) NOT NULL UNIQUE
+```
+
+Conceptually:
+
+```text
+NOT NULL
+→ value is required
+
+UNIQUE
+→ duplicate values are not allowed
+```
+
+They solve different problems.
+
+---
+
+# 8. PRIMARY KEY
+
+A primary key is used to **uniquely identify each row in a table**.
+
+Example:
+
+```sql
+CREATE TABLE students (
+    student_id INT PRIMARY KEY,
+    student_name VARCHAR(100)
+);
+```
+
+Here:
+
+```text
+student_id
+     ↓
+PRIMARY KEY
+     ↓
+uniquely identifies each student
+```
+
+Example:
+
+| student_id | student_name |
+| ---------: | ------------ |
+|        101 | Ravi         |
+|        102 | Sita         |
+|        103 | Arun         |
+
+Each `student_id` must be unique.
+
+---
+
+# 9. Primary Key Rules
+
+A primary key has two fundamental properties:
+
+```text
+PRIMARY KEY
+│
+├── Cannot contain NULL
+│
+└── Cannot contain duplicate values
+```
+
+Therefore:
+
+```sql
+student_id INT PRIMARY KEY
+```
+
+means each student must have a unique, non-NULL identifier.
+
+---
+
+# 10. Why Do We Need a Primary Key?
+
+Imagine this table:
+
+| student_name | age |
+| ------------ | --: |
+| Ravi         |  20 |
+| Ravi         |  20 |
+| Sita         |  21 |
+
+How do we uniquely identify the first Ravi?
+
+The name is not enough.
+
+Instead:
+
+| student_id | student_name | age |
+| ---------: | ------------ | --: |
+|        101 | Ravi         |  20 |
+|        102 | Ravi         |  20 |
+|        103 | Sita         |  21 |
+
+Now each row has a unique identity.
+
+---
+
+# 11. PRIMARY KEY vs UNIQUE
+
+Students commonly confuse these.
+
+| Feature          | PRIMARY KEY     | UNIQUE                                                               |
+| ---------------- | --------------- | -------------------------------------------------------------------- |
+| Duplicate values | Not allowed     | Not allowed                                                          |
+| NULL             | Not allowed     | DBMS-specific behavior; generally one or more NULLs may be permitted |
+| Purpose          | Identify a row  | Enforce uniqueness                                                   |
+| Number per table | One primary key | Multiple UNIQUE constraints possible                                 |
+
+Simple way to remember:
+
+```text
+PRIMARY KEY
+→ Who is this row?
+
+UNIQUE
+→ Is this value duplicated?
+```
+
+---
+
+# 12. Defining a Named Constraint
+
+We can give a constraint a name.
+
+```sql
+CREATE TABLE students (
+    student_id INT,
+    email VARCHAR(100),
+
+    CONSTRAINT pk_students
+        PRIMARY KEY (student_id),
+
+    CONSTRAINT uq_students_email
+        UNIQUE (email)
+);
+```
+
+This is useful because the constraint can be identified clearly later.
+
+Naming conventions such as:
+
+```text
+pk_
+uq_
+fk_
+chk_
+```
+
+are commonly used.
+
+---
+
+# 13. FOREIGN KEY
+
+A foreign key creates a relationship between two tables.
+
+Suppose we have:
+
+### departments
+
+| department_id | department_name |
+| ------------: | --------------- |
+|            10 | IT              |
+|            20 | HR              |
+|            30 | Finance         |
+
+And:
+
+### employees
+
+| employee_id | employee_name | department_id |
+| ----------: | ------------- | ------------: |
+|         101 | Ravi          |            10 |
+|         102 | Sita          |            20 |
+
+Here:
+
+```text
+employees.department_id
+          ↓
+departments.department_id
+```
+
+The employee's department must refer to an existing department.
+
+---
+
+# 14. Creating a FOREIGN KEY
+
+First create the parent table:
+
+```sql
+CREATE TABLE departments (
+    department_id INT PRIMARY KEY,
+    department_name VARCHAR(100)
+);
+```
+
+Then create the child table:
+
+```sql
+CREATE TABLE employees (
+    employee_id INT PRIMARY KEY,
+    employee_name VARCHAR(100) NOT NULL,
+    department_id INT,
+
+    FOREIGN KEY (department_id)
+        REFERENCES departments(department_id)
+);
+```
+
+Now:
+
+```text
+departments
+    ↑
+    │
+    │ FOREIGN KEY
+    │
+employees
+```
+
+---
+
+# 15. Parent Table and Child Table
+
+This terminology is important.
+
+If:
+
+```sql
+employees.department_id
+REFERENCES departments.department_id
+```
+
+then:
+
+```text
+departments
+     ↓
+Parent table
+
+employees
+     ↓
+Child table
+```
+
+The child table contains the foreign key.
+
+---
+
+# 16. Why Foreign Keys Are Important
+
+Without a foreign key, we could insert:
+
+```sql
+INSERT INTO employees
+VALUES (101, 'Ravi', 999);
+```
+
+But suppose department `999` does not exist.
+
+Now we have an employee referring to a department that isn't there.
+
+A foreign key helps prevent this kind of invalid relationship.
+
+---
+
+# 17. Foreign Key Example
+
+Valid:
+
+```text
+departments
+
+10 → IT
+20 → HR
+30 → Finance
+```
+
+Employee:
+
+```text
+101 → Ravi → 10
+```
+
+Department `10` exists.
+
+Therefore:
+
+```text
+✓ Valid
+```
+
+But:
+
+```text
+101 → Ravi → 99
+```
+
+if department `99` does not exist:
+
+```text
+✗ Invalid
+```
+
+---
+
+# 18. CHECK
+
+`CHECK` allows us to define a condition that values must satisfy.
+
+Example:
+
+```sql
+CREATE TABLE students (
+    student_id INT PRIMARY KEY,
+    student_name VARCHAR(100),
+    age INT CHECK (age >= 18)
+);
+```
+
+Now:
+
+```sql
+INSERT INTO students
+VALUES (1, 'Ravi', 21);
+```
+
+is valid.
+
+But:
+
+```sql
+INSERT INTO students
+VALUES (2, 'Sita', 15);
+```
+
+violates the condition.
+
+The rule is:
+
+```text
+age >= 18
+```
+
+---
+
+# 19. More CHECK Examples
+
+### Salary must be positive
+
+```sql
+salary DECIMAL(10,2)
+    CHECK (salary > 0)
+```
+
+### Age must be within a range
+
+```sql
+age INT
+    CHECK (age BETWEEN 18 AND 60)
+```
+
+### Status must contain an allowed value
+
+```sql
+status VARCHAR(20)
+    CHECK (status IN ('Active', 'Inactive'))
+```
+
+The exact enforcement behavior can vary by database version, so students should practice with the DBMS used in the course.
+
+---
+
+# 20. DEFAULT
+
+`DEFAULT` provides a value automatically when the user does not provide one.
+
+Example:
+
+```sql
+CREATE TABLE employees (
+    employee_id INT PRIMARY KEY,
+    employee_name VARCHAR(100) NOT NULL,
+    status VARCHAR(20) DEFAULT 'Active'
+);
+```
+
+Now:
+
+```sql
+INSERT INTO employees
+    (employee_id, employee_name)
+VALUES
+    (101, 'Ravi');
+```
+
+We did not specify `status`.
+
+The database can use:
+
+```text
+Active
+```
+
+automatically.
+
+---
+
+# 21. DEFAULT Example
+
+Suppose we have:
+
+```sql
+CREATE TABLE orders (
+    order_id INT PRIMARY KEY,
+    customer_name VARCHAR(100),
+    status VARCHAR(20) DEFAULT 'Pending'
+);
+```
+
+Insert:
+
+```sql
+INSERT INTO orders
+    (order_id, customer_name)
+VALUES
+    (1, 'Ravi');
+```
+
+Result:
+
+| order_id | customer_name | status  |
+| -------: | ------------- | ------- |
+|        1 | Ravi          | Pending |
+
+---
+
+# 22. DEFAULT Does Not Mean NOT NULL
+
+These are different.
+
+```sql
+status VARCHAR(20) DEFAULT 'Active'
+```
+
+means:
+
+> If a value is omitted, use `Active`.
+
+Whereas:
+
+```sql
+status VARCHAR(20) NOT NULL
+```
+
+means:
+
+> NULL is not allowed.
+
+They can also be combined:
+
+```sql
+status VARCHAR(20)
+    NOT NULL
+    DEFAULT 'Active'
+```
+
+Now:
+
+```text
+Value omitted
+     ↓
+Active
+
+NULL explicitly provided
+     ↓
+Rejected
+```
+
+---
+
+# 23. Combining Constraints
+
+Real tables usually use multiple constraints together.
+
+Example:
+
+```sql
+CREATE TABLE students (
+    student_id INT PRIMARY KEY,
+    student_name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    age INT CHECK (age >= 18),
+    status VARCHAR(20) NOT NULL DEFAULT 'Active'
+);
+```
+
+Let's understand each one:
+
+```text
+student_id
+→ PRIMARY KEY
+
+student_name
+→ NOT NULL
+
+email
+→ NOT NULL + UNIQUE
+
+age
+→ CHECK
+
+status
+→ NOT NULL + DEFAULT
+```
+
+---
+
+# 24. Complete Parent-Child Example
+
+Let's create a realistic database.
+
+## Department table
+
+```sql
+CREATE TABLE departments (
+    department_id INT PRIMARY KEY,
+    department_name VARCHAR(100) NOT NULL UNIQUE
+);
+```
+
+## Employee table
+
+```sql
+CREATE TABLE employees (
+    employee_id INT PRIMARY KEY,
+    employee_name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    salary DECIMAL(10,2) CHECK (salary > 0),
+    status VARCHAR(20) NOT NULL DEFAULT 'Active',
+    department_id INT,
+
+    FOREIGN KEY (department_id)
+        REFERENCES departments(department_id)
+);
+```
+
+Now we have several protections:
+
+```text
+employee_id
+→ unique identity
+
+employee_name
+→ required
+
+email
+→ required + unique
+
+salary
+→ must be greater than 0
+
+status
+→ required + default value
+
+department_id
+→ must refer to an existing department
+```
+
+---
+
+# 25. Column-Level vs Table-Level Constraints
+
+Constraints can generally be written in two styles.
+
+### Column-level
+
+```sql
+CREATE TABLE students (
+    student_id INT PRIMARY KEY,
+    student_name VARCHAR(100) NOT NULL
+);
+```
+
+The constraint is written directly with the column.
+
+### Table-level
+
+```sql
+CREATE TABLE students (
+    student_id INT,
+    student_name VARCHAR(100),
+
+    PRIMARY KEY (student_id)
+);
+```
+
+Both define a primary key.
+
+Table-level syntax becomes particularly useful for multi-column constraints.
+
+---
+
+# 26. Composite Primary Key
+
+Sometimes one column is not enough to uniquely identify a row.
+
+Suppose we have:
+
+```text
+student_id
+course_id
+```
+
+A student can take multiple courses.
+
+A course can have multiple students.
+
+But the combination:
+
+```text
+student_id + course_id
+```
+
+must be unique.
+
+We can create:
+
+```sql
+CREATE TABLE student_courses (
+    student_id INT,
+    course_id INT,
+
+    PRIMARY KEY (student_id, course_id)
+);
+```
+
+This is called a:
+
+> **Composite Primary Key**
+
+---
+
+# 27. Composite Key Example
+
+Allowed:
+
+| student_id | course_id |
+| ---------: | --------: |
+|        101 |       501 |
+|        101 |       502 |
+|        102 |       501 |
+
+But this would be invalid:
+
+| student_id | course_id |
+| ---------: | --------: |
+|        101 |       501 |
+|        101 |       501 |
+
+because the combination:
+
+```text
+101 + 501
+```
+
+already exists.
+
+---
+
+# 28. Composite Foreign Key
+
+Foreign keys can also involve multiple columns.
+
+Example:
+
+```sql
+FOREIGN KEY (student_id, course_id)
+REFERENCES enrollments(student_id, course_id)
+```
+
+This is an advanced topic and can be introduced after students understand basic foreign keys.
+
+---
+
+# 29. ON DELETE
+
+Foreign keys can define what should happen when a referenced parent row is deleted.
+
+Example:
+
+```sql
+FOREIGN KEY (department_id)
+REFERENCES departments(department_id)
+ON DELETE CASCADE
+```
+
+`CASCADE` means related child rows can also be deleted when the parent row is deleted.
+
+This is powerful and should be taught carefully.
+
+---
+
+# 30. ON UPDATE
+
+Similarly:
+
+```sql
+FOREIGN KEY (department_id)
+REFERENCES departments(department_id)
+ON UPDATE CASCADE
+```
+
+This defines behavior when the referenced key changes.
+
+Common actions include:
+
+```text
+CASCADE
+SET NULL
+RESTRICT
+NO ACTION
+```
+
+Exact support and behavior vary by database.
+
+---
+
+# 31. ON DELETE Example
+
+Suppose:
+
+```text
+Department 10 → IT
+
+Employee 101 → Ravi → Department 10
+Employee 102 → Sita → Department 10
+```
+
+If the foreign key uses:
+
+```sql
+ON DELETE CASCADE
+```
+
+deleting department 10 can also delete the related employee rows.
+
+Therefore:
+
+> Never us
