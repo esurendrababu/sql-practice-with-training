@@ -1,0 +1,1788 @@
+# 04 — SELECT: Retrieving Data
+
+> **Learning how to Read Data from a Database**
+>
+> In the previous phase, we learned how to:
+>
+> * Insert data
+> * Update data
+> * Delete data
+>
+> But working with a database is not only about changing data.
+>
+> Most of the time, we need to **read and analyze data**.
+>
+> This is where `SELECT` comes in.
+
+---
+
+# 1. What is SELECT?
+
+`SELECT` is used to retrieve data from a database table.
+
+For example, if our `students` table contains:
+
+| student_id | student_name | age | department |
+| ---------: | ------------ | --: | ---------- |
+|        101 | Ravi         |  21 | CSE        |
+|        102 | Sita         |  21 | ECE        |
+|        103 | Arun         |  20 | CSE        |
+|        104 | Priya        |  22 | EEE        |
+
+We can ask:
+
+> Show me the students.
+
+SQL:
+
+```sql
+SELECT *
+FROM students;
+```
+
+The database returns the matching data.
+
+---
+
+# 2. The Basic SELECT Syntax
+
+The basic syntax is:
+
+```sql
+SELECT column_name
+FROM table_name;
+```
+
+Example:
+
+```sql
+SELECT student_name
+FROM students;
+```
+
+This means:
+
+```text
+SELECT
+   ↓
+What do you want?
+
+student_name
+   ↓
+Column we want
+
+FROM
+   ↓
+Where should the data come from?
+
+students
+   ↓
+Table
+```
+
+---
+
+# 3. SELECT All Columns
+
+The `*` means:
+
+> All columns
+
+Example:
+
+```sql
+SELECT *
+FROM students;
+```
+
+Result:
+
+| student_id | student_name | age | department |
+| ---------: | ------------ | --: | ---------- |
+|        101 | Ravi         |  21 | CSE        |
+|        102 | Sita         |  21 | ECE        |
+|        103 | Arun         |  20 | CSE        |
+|        104 | Priya        |  22 | EEE        |
+
+---
+
+# 4. Should We Always Use `SELECT *`?
+
+For learning, `SELECT *` is very convenient.
+
+But in real applications, it is often better to request only the columns you need.
+
+Instead of:
+
+```sql
+SELECT *
+FROM students;
+```
+
+we can write:
+
+```sql
+SELECT student_name, department
+FROM students;
+```
+
+Result:
+
+| student_name | department |
+| ------------ | ---------- |
+| Ravi         | CSE        |
+| Sita         | ECE        |
+| Arun         | CSE        |
+| Priya        | EEE        |
+
+### Good habit
+
+> Select only the columns you actually need when practical.
+
+---
+
+# 5. Selecting One Column
+
+```sql
+SELECT student_name
+FROM students;
+```
+
+Result:
+
+| student_name |
+| ------------ |
+| Ravi         |
+| Sita         |
+| Arun         |
+| Priya        |
+
+---
+
+# 6. Selecting Multiple Columns
+
+We can select multiple columns by separating them with commas.
+
+```sql
+SELECT student_name, age
+FROM students;
+```
+
+Result:
+
+| student_name | age |
+| ------------ | --: |
+| Ravi         |  21 |
+| Sita         |  21 |
+| Arun         |  20 |
+| Priya        |  22 |
+
+Another example:
+
+```sql
+SELECT student_name, age, department
+FROM students;
+```
+
+---
+
+# 7. Column Order in SELECT
+
+The order of columns in the `SELECT` statement determines the order in the result.
+
+```sql
+SELECT department, student_name, age
+FROM students;
+```
+
+Result:
+
+| department | student_name | age |
+| ---------- | ------------ | --: |
+| CSE        | Ravi         |  21 |
+| ECE        | Sita         |  21 |
+| CSE        | Arun         |  20 |
+| EEE        | Priya        |  22 |
+
+The table structure itself has not changed.
+
+Only the result display has changed.
+
+---
+
+# 8. SELECT Does Not Change the Table
+
+This is important.
+
+When we run:
+
+```sql
+SELECT student_name
+FROM students;
+```
+
+we are only **reading** the data.
+
+We are not changing the table.
+
+Compare:
+
+```text
+SELECT
+ ↓
+Read data
+```
+
+```text
+INSERT
+UPDATE
+DELETE
+ ↓
+Change data
+```
+
+So:
+
+> `SELECT` is a read operation.
+
+---
+
+# 9. SELECT with an Expression
+
+SQL can also perform calculations.
+
+Suppose we have:
+
+```text
+price
+quantity
+```
+
+We can calculate:
+
+```sql
+SELECT price * quantity
+FROM order_items;
+```
+
+The database calculates the expression for each matching row.
+
+For example:
+
+| price | quantity |
+| ----: | -------: |
+|   500 |        2 |
+|  1000 |        3 |
+
+Query:
+
+```sql
+SELECT price * quantity
+FROM order_items;
+```
+
+Result:
+
+| price * quantity |
+| ---------------: |
+|             1000 |
+|             3000 |
+
+---
+
+# 10. Column Aliases
+
+Sometimes the result column name is not very readable.
+
+For example:
+
+```sql
+SELECT price * quantity
+FROM order_items;
+```
+
+The output column may appear as:
+
+```text
+price * quantity
+```
+
+We can give it a meaningful name using an alias.
+
+```sql
+SELECT price * quantity AS total_amount
+FROM order_items;
+```
+
+Result:
+
+| total_amount |
+| -----------: |
+|         1000 |
+|         3000 |
+
+`AS` gives a temporary name to the result column.
+
+---
+
+# 11. Aliases for Columns
+
+We can also rename columns in the query result.
+
+```sql
+SELECT student_name AS name
+FROM students;
+```
+
+Result:
+
+| name  |
+| ----- |
+| Ravi  |
+| Sita  |
+| Arun  |
+| Priya |
+
+Important:
+
+> An alias changes the name shown in the result. It does not rename the actual column in the table.
+
+---
+
+# 12. Aliases for Tables
+
+We can also give a temporary name to a table.
+
+```sql
+SELECT s.student_name
+FROM students AS s;
+```
+
+Here:
+
+```text
+students → s
+```
+
+So:
+
+```text
+s.student_name
+```
+
+means:
+
+> `student_name` from the `students` table.
+
+Table aliases become especially useful when we learn **JOINs**.
+
+---
+
+# 13. DISTINCT
+
+Suppose our table contains:
+
+| student_id | student_name | department |
+| ---------: | ------------ | ---------- |
+|        101 | Ravi         | CSE        |
+|        102 | Sita         | ECE        |
+|        103 | Arun         | CSE        |
+|        104 | Priya        | EEE        |
+|        105 | Kiran        | CSE        |
+
+If we run:
+
+```sql
+SELECT department
+FROM students;
+```
+
+we may get:
+
+| department |
+| ---------- |
+| CSE        |
+| ECE        |
+| CSE        |
+| EEE        |
+| CSE        |
+
+There are repeated values.
+
+What if we want each department only once?
+
+Use:
+
+```sql
+SELECT DISTINCT department
+FROM students;
+```
+
+Result:
+
+| department |
+| ---------- |
+| CSE        |
+| ECE        |
+| EEE        |
+
+---
+
+# 14. What Does DISTINCT Do?
+
+`DISTINCT` removes duplicate result rows.
+
+It does **not** delete data from the table.
+
+For example:
+
+```sql
+SELECT DISTINCT department
+FROM students;
+```
+
+does not modify the `students` table.
+
+It only removes duplicate values from the result.
+
+Remember:
+
+```text
+DISTINCT
+   ↓
+Unique values in the result
+```
+
+---
+
+# 15. DISTINCT with Multiple Columns
+
+Consider:
+
+```sql
+SELECT DISTINCT department, age
+FROM students;
+```
+
+Here, SQL considers the **combination** of:
+
+```text
+department + age
+```
+
+when determining duplicates.
+
+It does not simply make each individual column unique.
+
+This distinction becomes important later when analyzing query results.
+
+---
+
+# 16. WHERE
+
+So far, `SELECT` gives us all matching rows.
+
+But what if we only want:
+
+> Students from CSE?
+
+We use:
+
+```text
+WHERE
+```
+
+Example:
+
+```sql
+SELECT *
+FROM students
+WHERE department = 'CSE';
+```
+
+Result:
+
+| student_id | student_name | age | department |
+| ---------: | ------------ | --: | ---------- |
+|        101 | Ravi         |  21 | CSE        |
+|        103 | Arun         |  20 | CSE        |
+|        105 | Kiran        |  21 | CSE        |
+
+---
+
+# 17. Understanding WHERE
+
+Look at:
+
+```sql
+SELECT *
+FROM students
+WHERE department = 'CSE';
+```
+
+Think of it as:
+
+```text
+FROM
+ ↓
+Look at the students table
+
+WHERE
+ ↓
+Keep only rows that satisfy this condition
+
+department = 'CSE'
+```
+
+So:
+
+> `WHERE` filters rows.
+
+---
+
+# 18. WHERE with Numbers
+
+Suppose we want students older than 20.
+
+```sql
+SELECT *
+FROM students
+WHERE age > 20;
+```
+
+Result:
+
+| student_id | student_name | age | department |
+| ---------: | ------------ | --: | ---------- |
+|        101 | Ravi         |  21 | CSE        |
+|        102 | Sita         |  21 | ECE        |
+|        104 | Priya        |  22 | EEE        |
+
+---
+
+# 19. Comparison Operators
+
+SQL provides comparison operators.
+
+| Operator | Meaning                                        |
+| -------- | ---------------------------------------------- |
+| `=`      | Equal to                                       |
+| `<>`     | Not equal to                                   |
+| `!=`     | Not equal to in commonly supported SQL systems |
+| `>`      | Greater than                                   |
+| `<`      | Less than                                      |
+| `>=`     | Greater than or equal to                       |
+| `<=`     | Less than or equal to                          |
+
+Examples:
+
+```sql
+SELECT *
+FROM students
+WHERE age = 21;
+```
+
+```sql
+SELECT *
+FROM students
+WHERE age > 20;
+```
+
+```sql
+SELECT *
+FROM students
+WHERE age <= 21;
+```
+
+```sql
+SELECT *
+FROM students
+WHERE department <> 'CSE';
+```
+
+---
+
+# 20. WHERE with AND
+
+What if we want:
+
+> CSE students who are older than 20.
+
+We need two conditions.
+
+Use:
+
+```text
+AND
+```
+
+```sql
+SELECT *
+FROM students
+WHERE department = 'CSE'
+  AND age > 20;
+```
+
+Both conditions must be true.
+
+Think:
+
+```text
+Condition 1
+    AND
+Condition 2
+```
+
+Both must match.
+
+---
+
+# 21. WHERE with OR
+
+What if we want:
+
+> Students from CSE or ECE.
+
+Use:
+
+```sql
+SELECT *
+FROM students
+WHERE department = 'CSE'
+   OR department = 'ECE';
+```
+
+Here, a row can match either condition.
+
+---
+
+# 22. AND vs OR
+
+### AND
+
+Both conditions must be true.
+
+```sql
+WHERE age > 20
+AND department = 'CSE'
+```
+
+### OR
+
+At least one condition must be true.
+
+```sql
+WHERE department = 'CSE'
+OR department = 'ECE'
+```
+
+Easy way to remember:
+
+```text
+AND → Both
+OR  → Either
+```
+
+---
+
+# 23. NOT
+
+`NOT` reverses a condition.
+
+Example:
+
+```sql
+SELECT *
+FROM students
+WHERE NOT department = 'CSE';
+```
+
+This means:
+
+> Students who are not in CSE.
+
+Another common form is:
+
+```sql
+SELECT *
+FROM students
+WHERE department <> 'CSE';
+```
+
+---
+
+# 24. Operator Precedence
+
+When a query contains multiple conditions, SQL evaluates logical operators according to precedence rules.
+
+For example:
+
+```sql
+SELECT *
+FROM students
+WHERE department = 'CSE'
+   OR department = 'ECE'
+  AND age > 20;
+```
+
+`AND` has higher precedence than `OR`.
+
+So the condition is interpreted approximately as:
+
+```text
+CSE
+OR
+(ECE AND age > 20)
+```
+
+When the intended logic is important, use parentheses.
+
+Example:
+
+```sql
+SELECT *
+FROM students
+WHERE (department = 'CSE' OR department = 'ECE')
+  AND age > 20;
+```
+
+### Good habit
+
+> Use parentheses when they make your intended logic clearer.
+
+---
+
+# 25. BETWEEN
+
+Suppose we want students whose age is between 20 and 22.
+
+We can write:
+
+```sql
+SELECT *
+FROM students
+WHERE age BETWEEN 20 AND 22;
+```
+
+`BETWEEN` is useful for range conditions.
+
+Conceptually:
+
+```text
+20 ≤ age ≤ 22
+```
+
+In SQL, `BETWEEN` includes the boundary values.
+
+---
+
+# 26. IN
+
+Suppose we want students from:
+
+```text
+CSE
+ECE
+EEE
+```
+
+Instead of:
+
+```sql
+SELECT *
+FROM students
+WHERE department = 'CSE'
+   OR department = 'ECE'
+   OR department = 'EEE';
+```
+
+we can use:
+
+```sql
+SELECT *
+FROM students
+WHERE department IN ('CSE', 'ECE', 'EEE');
+```
+
+This is shorter and easier to read.
+
+---
+
+# 27. NOT IN
+
+We can also exclude values.
+
+```sql
+SELECT *
+FROM students
+WHERE department NOT IN ('CSE', 'ECE');
+```
+
+This returns students whose department is not in the specified list, subject to SQL's `NULL` behavior.
+
+---
+
+# 28. LIKE
+
+`LIKE` is used for pattern matching.
+
+Suppose we want names starting with `A`.
+
+```sql
+SELECT *
+FROM students
+WHERE student_name LIKE 'A%';
+```
+
+Here:
+
+```text
+%
+```
+
+means a sequence of zero or more characters in standard SQL pattern matching.
+
+Examples:
+
+```text
+'A%'   → Starts with A
+'%a'   → Ends with a
+'%ar%' → Contains ar
+```
+
+---
+
+# 29. LIKE Examples
+
+### Starts with A
+
+```sql
+SELECT *
+FROM students
+WHERE student_name LIKE 'A%';
+```
+
+### Ends with a
+
+```sql
+SELECT *
+FROM students
+WHERE student_name LIKE '%a';
+```
+
+### Contains "vi"
+
+```sql
+SELECT *
+FROM students
+WHERE student_name LIKE '%vi%';
+```
+
+Pattern matching behavior such as case sensitivity can depend on the DBMS and collation.
+
+---
+
+# 30. The `_` Wildcard
+
+In SQL `LIKE` patterns:
+
+```text
+_
+```
+
+represents one character.
+
+Example:
+
+```sql
+SELECT *
+FROM students
+WHERE student_name LIKE '_avi';
+```
+
+This can match a four-character name ending in `avi`, depending on the database's pattern-matching behavior.
+
+Compare:
+
+```text
+% → zero or more characters
+_ → exactly one character
+```
+
+---
+
+# 31. ORDER BY
+
+Now suppose we want students sorted by age.
+
+Use:
+
+```text
+ORDER BY
+```
+
+Example:
+
+```sql
+SELECT *
+FROM students
+ORDER BY age;
+```
+
+By default, ascending order is used in common SQL implementations.
+
+---
+
+# 32. ASC and DESC
+
+We can explicitly specify the direction.
+
+### Ascending
+
+```sql
+SELECT *
+FROM students
+ORDER BY age ASC;
+```
+
+### Descending
+
+```sql
+SELECT *
+FROM students
+ORDER BY age DESC;
+```
+
+Remember:
+
+```text
+ASC  → Small → Large
+DESC → Large → Small
+```
+
+For text, ascending/descending order follows the database's sorting and collation rules.
+
+---
+
+# 33. ORDER BY a Column
+
+Example:
+
+```sql
+SELECT student_name, age
+FROM students
+ORDER BY student_name ASC;
+```
+
+This returns students ordered by name.
+
+---
+
+# 34. ORDER BY Multiple Columns
+
+We can sort by more than one column.
+
+Example:
+
+```sql
+SELECT *
+FROM students
+ORDER BY department ASC, age DESC;
+```
+
+The database first sorts by:
+
+```text
+department
+```
+
+and within the same department, it sorts by:
+
+```text
+age
+```
+
+in descending order.
+
+Think:
+
+```text
+Primary sort
+     ↓
+department
+
+Secondary sort
+     ↓
+age
+```
+
+---
+
+# 35. LIMIT
+
+Sometimes we don't want every row.
+
+For example:
+
+> Show only the first 3 students.
+
+In MySQL:
+
+```sql
+SELECT *
+FROM students
+LIMIT 3;
+```
+
+This returns at most three rows.
+
+---
+
+# 36. LIMIT with ORDER BY
+
+`LIMIT` becomes much more useful with sorting.
+
+Suppose we want:
+
+> Top 3 highest-paid employees.
+
+```sql
+SELECT *
+FROM employees
+ORDER BY salary DESC
+LIMIT 3;
+```
+
+Think:
+
+```text
+ORDER BY salary DESC
+        ↓
+Highest salary first
+        ↓
+LIMIT 3
+        ↓
+Take first 3
+```
+
+---
+
+# 37. SELECT Query Structure
+
+We have now learned several important clauses.
+
+A basic query can look like:
+
+```sql
+SELECT column1, column2
+FROM table_name
+WHERE condition
+ORDER BY column1
+LIMIT 10;
+```
+
+A useful mental model is:
+
+```text
+SELECT
+   ↓
+What do I want?
+
+FROM
+   ↓
+Where is it?
+
+WHERE
+   ↓
+Which rows?
+
+ORDER BY
+   ↓
+How should they be sorted?
+
+LIMIT
+   ↓
+How many rows?
+```
+
+---
+
+# 38. SQL Query Execution — Beginner Mental Model
+
+When reading a query, students often think SQL runs strictly from top to bottom.
+
+For learning, it is better to understand the logical flow as:
+
+```text
+FROM
+ ↓
+WHERE
+ ↓
+SELECT
+ ↓
+ORDER BY
+ ↓
+LIMIT
+```
+
+For example:
+
+```sql
+SELECT student_name
+FROM students
+WHERE age > 20
+ORDER BY student_name
+LIMIT 3;
+```
+
+Conceptually:
+
+```text
+students
+   ↓
+Filter age > 20
+   ↓
+Select student_name
+   ↓
+Sort by student_name
+   ↓
+Take first 3
+```
+
+This mental model becomes very useful when we later learn `GROUP BY`, `HAVING`, and `JOIN`.
+
+---
+
+# 39. NULL and SELECT
+
+Remember from Phase 0:
+
+> NULL means a value is missing, unknown, or unavailable.
+
+Suppose:
+
+| student_id | student_name | phone      |
+| ---------: | ------------ | ---------- |
+|        101 | Ravi         | 9876543210 |
+|        102 | Sita         | NULL       |
+|        103 | Arun         | 9123456789 |
+
+To find students whose phone number is missing, **do not** write:
+
+```sql
+WHERE phone = NULL
+```
+
+Instead, use:
+
+```sql
+SELECT *
+FROM students
+WHERE phone IS NULL;
+```
+
+---
+
+# 40. IS NULL
+
+To find missing values:
+
+```sql
+SELECT *
+FROM students
+WHERE phone IS NULL;
+```
+
+To find values that are not NULL:
+
+```sql
+SELECT *
+FROM students
+WHERE phone IS NOT NULL;
+```
+
+Remember:
+
+```text
+NULL
+ ↓
+IS NULL
+
+Not NULL
+ ↓
+IS NOT NULL
+```
+
+This is an important SQL rule.
+
+---
+
+# 41. Combining Conditions
+
+Now let's create realistic queries.
+
+### CSE students older than 20
+
+```sql
+SELECT student_name, age
+FROM students
+WHERE department = 'CSE'
+  AND age > 20;
+```
+
+### CSE or ECE students
+
+```sql
+SELECT student_name, department
+FROM students
+WHERE department IN ('CSE', 'ECE');
+```
+
+### Students between 20 and 22
+
+```sql
+SELECT student_name, age
+FROM students
+WHERE age BETWEEN 20 AND 22;
+```
+
+### Names starting with A
+
+```sql
+SELECT student_name
+FROM students
+WHERE student_name LIKE 'A%';
+```
+
+### Students without phone numbers
+
+```sql
+SELECT student_name
+FROM students
+WHERE phone IS NULL;
+```
+
+---
+
+# 42. Practical Example — Employees
+
+Suppose our `employees` table contains:
+
+| employee_id | employee_name | department | salary |
+| ----------: | ------------- | ---------- | -----: |
+|         101 | Ravi          | IT         |  45000 |
+|         102 | Sita          | HR         |  50000 |
+|         103 | Arun          | IT         |  42000 |
+|         104 | Priya         | Finance    |  55000 |
+|         105 | Kiran         | IT         |  48000 |
+
+### Find all employees
+
+```sql
+SELECT *
+FROM employees;
+```
+
+### Find employee names
+
+```sql
+SELECT employee_name
+FROM employees;
+```
+
+### Find IT employees
+
+```sql
+SELECT *
+FROM employees
+WHERE department = 'IT';
+```
+
+### Find employees earning more than 45000
+
+```sql
+SELECT *
+FROM employees
+WHERE salary > 45000;
+```
+
+### Find the highest-paid employees
+
+```sql
+SELECT *
+FROM employees
+ORDER BY salary DESC;
+```
+
+### Show the top 2 highest-paid employees
+
+```sql
+SELECT *
+FROM employees
+ORDER BY salary DESC
+LIMIT 2;
+```
+
+---
+
+# 43. Practical Example — Products
+
+Suppose:
+
+| product_id | product_name | category    | price |
+| ---------: | ------------ | ----------- | ----: |
+|          1 | Laptop       | Electronics | 60000 |
+|          2 | Mouse        | Electronics |   800 |
+|          3 | Chair        | Furniture   |  5000 |
+|          4 | Keyboard     | Electronics |  1500 |
+|          5 | Table        | Furniture   |  8000 |
+
+### Products above ₹5,000
+
+```sql
+SELECT *
+FROM products
+WHERE price > 5000;
+```
+
+### Electronics products
+
+```sql
+SELECT *
+FROM products
+WHERE category = 'Electronics';
+```
+
+### Products between ₹1,000 and ₹10,000
+
+```sql
+SELECT *
+FROM products
+WHERE price BETWEEN 1000 AND 10000;
+```
+
+### Unique categories
+
+```sql
+SELECT DISTINCT category
+FROM products;
+```
+
+### Most expensive products first
+
+```sql
+SELECT *
+FROM products
+ORDER BY price DESC;
+```
+
+---
+
+# 44. Common Beginner Mistakes
+
+## Mistake 1 — Forgetting FROM
+
+Wrong:
+
+```sql
+SELECT student_name;
+```
+
+Correct:
+
+```sql
+SELECT student_name
+FROM students;
+```
+
+---
+
+## Mistake 2 — Using `=` with NULL
+
+Wrong:
+
+```sql
+WHERE phone = NULL;
+```
+
+Correct:
+
+```sql
+WHERE phone IS NULL;
+```
+
+---
+
+## Mistake 3 — Forgetting quotes around text
+
+Wrong:
+
+```sql
+WHERE department = CSE;
+```
+
+Correct:
+
+```sql
+WHERE department = 'CSE';
+```
+
+---
+
+## Mistake 4 — Confusing `WHERE` and `ORDER BY`
+
+`WHERE` filters rows:
+
+```sql
+WHERE age > 20
+```
+
+`ORDER BY` sorts rows:
+
+```sql
+ORDER BY age DESC
+```
+
+---
+
+## Mistake 5 — Thinking DISTINCT changes the table
+
+```sql
+SELECT DISTINCT department
+FROM students;
+```
+
+does not delete duplicate departments from the database.
+
+It only removes duplicate values from that query's result.
+
+---
+
+# 45. Important SELECT Patterns
+
+Learn these patterns rather than memorizing random queries.
+
+### Pattern 1 — All columns
+
+```sql
+SELECT *
+FROM table_name;
+```
+
+### Pattern 2 — Specific columns
+
+```sql
+SELECT column1, column2
+FROM table_name;
+```
+
+### Pattern 3 — Filter
+
+```sql
+SELECT *
+FROM table_name
+WHERE condition;
+```
+
+### Pattern 4 — Sort
+
+```sql
+SELECT *
+FROM table_name
+ORDER BY column_name DESC;
+```
+
+### Pattern 5 — Unique values
+
+```sql
+SELECT DISTINCT column_name
+FROM table_name;
+```
+
+### Pattern 6 — Limit results
+
+```sql
+SELECT *
+FROM table_name
+LIMIT 10;
+```
+
+### Pattern 7 — Combine
+
+```sql
+SELECT column1, column2
+FROM table_name
+WHERE condition
+ORDER BY column1
+LIMIT 10;
+```
+
+---
+
+# 46. Query Building Method
+
+Don't try to memorize complete queries.
+
+Instead, start with a question.
+
+### Question
+
+> Show the names of CSE students older than 20, sorted by age from highest to lowest.
+
+Break the question down:
+
+```text
+What?
+→ student_name
+
+From where?
+→ students
+
+Which students?
+→ department = CSE
+→ age > 20
+
+How to sort?
+→ age DESC
+```
+
+Build the query:
+
+```sql
+SELECT student_name
+FROM students
+WHERE department = 'CSE'
+  AND age > 20
+ORDER BY age DESC;
+```
+
+This is how you should learn SQL.
+
+> **Think about the question first. Then build the query.**
+
+---
+
+# 47. Practice Questions
+
+Use the `students` table.
+
+### Beginner
+
+1. Display all students.
+2. Display only student names.
+3. Display student names and ages.
+4. Display student names and departments.
+5. Display all unique departments.
+
+### Filtering
+
+6. Find students older than 20.
+7. Find students younger than 22.
+8. Find students from CSE.
+9. Find students from ECE.
+10. Find students who are not from CSE.
+
+### Multiple conditions
+
+11. Find CSE students older than 20.
+12. Find students from CSE or ECE.
+13. Find students aged between 20 and 22.
+14. Find students whose age is 20 or 21.
+
+### Pattern matching
+
+15. Find students whose name starts with `A`.
+16. Find students whose name ends with `a`.
+17. Find students whose name contains `ri`.
+
+### Sorting
+
+18. Sort students by age.
+19. Sort students by age from highest to lowest.
+20. Sort students by name alphabetically.
+21. Sort by department and then age.
+
+### Limiting
+
+22. Display the first 3 students.
+23. Display the 3 oldest students.
+24. Display the 2 youngest students.
+
+### NULL
+
+25. Find students whose phone number is NULL.
+26. Find students whose phone number is not NULL.
+
+---
+
+# 48. Mini Challenge
+
+Use the `employees` table.
+
+Write SQL queries for:
+
+1. Display all employees.
+2. Display only employee names.
+3. Display employee names and salaries.
+4. Find employees from IT.
+5. Find employees earning more than `50000`.
+6. Find employees earning between `40000` and `55000`.
+7. Find employees from IT or HR.
+8. Display unique departments.
+9. Sort employees by salary from highest to lowest.
+10. Display the top 3 highest-paid employees.
+11. Find employees whose names start with `A`.
+12. Find employees whose names contain `i`.
+
+Try to write the queries **without looking at the examples above**.
+
+---
+
+# 49. Interview Questions
+
+### Q1. What is SELECT?
+
+`SELECT` is used to retrieve data from one or more database tables.
+
+### Q2. What does `*` mean in SELECT?
+
+It represents all columns.
+
+### Q3. What is WHERE?
+
+`WHERE` filters rows based on a condition.
+
+### Q4. What is DISTINCT?
+
+It removes duplicate result rows.
+
+### Q5. What is ORDER BY?
+
+It sorts the query result.
+
+### Q6. What is the difference between ASC and DESC?
+
+```text
+ASC  → Ascending
+DESC → Descending
+```
+
+### Q7. What is LIMIT?
+
+It restricts the number of rows returned.
+
+### Q8. How do you check for NULL?
+
+```sql
+IS NULL
+```
+
+or:
+
+```sql
+IS NOT NULL
+```
+
+### Q9. What is LIKE?
+
+`LIKE` is used for pattern matching.
+
+### Q10. What is the difference between WHERE and ORDER BY?
+
+```text
+WHERE
+→ Filters rows
+
+ORDER BY
+→ Sorts rows
+```
+
+---
+
+# 50. Final Mental Model
+
+At this point, you should be able to think about SQL like this:
+
+```text
+                    SELECT
+                       │
+                       ↓
+                What do I need?
+                       │
+                       ↓
+                      FROM
+                       │
+                       ↓
+                Where is the data?
+                       │
+                       ↓
+                     WHERE
+                       │
+                       ↓
+                 Which rows?
+                       │
+                       ↓
+                   ORDER BY
+                       │
+                       ↓
+                 How to sort?
+                       │
+                       ↓
+                    LIMIT
+                       │
+                       ↓
+                How many rows?
+```
+
+And remember:
+
+```text
+SELECT
+ ↓
+Read
+
+WHERE
+ ↓
+Filter
+
+DISTINCT
+ ↓
+Remove duplicate results
+
+ORDER BY
+ ↓
+Sort
+
+LIMIT
+ ↓
+Restrict result count
+```
+
+---
+
+# 🚀 Next: SQL Operators & Filtering
+
+We have learned the basic `SELECT` statement.
+
+Next, we will go deeper into **filtering and operators**.
+
+We will learn:
+
+```text
+Comparison Operators
+Logical Operators
+AND
+OR
+NOT
+IN
+NOT IN
+BETWEEN
+LIKE
+IS NULL
+IS NOT NULL
+Operator Precedence
+```
+
+Then we will combine them to solve real-world SQL problems.
+
+> **Don't memorize queries. Learn how to convert a question into a query.**
