@@ -1,0 +1,1383 @@
+# 03 — DML: Data Manipulation Language
+
+> **Working with Data Inside Tables**
+>
+> In the previous phase, we learned DDL and created our database and tables.
+>
+> But our tables are still empty.
+>
+> Now we are going to learn how to **add, change, and remove data**.
+>
+> This is where DML comes in.
+
+---
+
+# 1. What is DML?
+
+DML stands for:
+
+> **Data Manipulation Language**
+
+DML is used to work with the data stored inside database tables.
+
+The main DML commands are:
+
+```text
+INSERT
+UPDATE
+DELETE
+```
+
+Think of it this way:
+
+```text
+DDL
+ ↓
+Creates and changes the structure
+
+DML
+ ↓
+Works with the data inside that structure
+```
+
+---
+
+# 2. Structure vs Data
+
+Suppose we created this table:
+
+```sql
+CREATE TABLE students (
+    student_id INT,
+    student_name VARCHAR(100),
+    age INT,
+    department VARCHAR(50)
+);
+```
+
+The table structure is:
+
+```text
+student_id
+student_name
+age
+department
+```
+
+But there are no students yet.
+
+```text
+students
+
+student_id | student_name | age | department
+-----------|--------------|-----|------------
+           |              |     |
+```
+
+Now we need to add data.
+
+That is where:
+
+```text
+INSERT
+```
+
+comes in.
+
+---
+
+# 3. The Three Main DML Commands
+
+```text
+DML
+│
+├── INSERT
+│     ↓
+│   Add data
+│
+├── UPDATE
+│     ↓
+│   Change existing data
+│
+└── DELETE
+      ↓
+    Remove data
+```
+
+Easy way to remember:
+
+```text
+INSERT → Add
+UPDATE → Change
+DELETE  → Remove
+```
+
+---
+
+# 4. INSERT
+
+`INSERT` is used to add new records to a table.
+
+Suppose our students table is:
+
+```text
+students
+
+student_id | student_name | age | department
+```
+
+We want to add:
+
+```text
+101 | Ravi | 20 | CSE
+```
+
+We can write:
+
+```sql
+INSERT INTO students
+VALUES (101, 'Ravi', 20, 'CSE');
+```
+
+Now the table contains:
+
+| student_id | student_name | age | department |
+| ---------: | ------------ | --: | ---------- |
+|        101 | Ravi         |  20 | CSE        |
+
+---
+
+# 5. Understanding INSERT
+
+Look at:
+
+```sql
+INSERT INTO students
+VALUES (101, 'Ravi', 20, 'CSE');
+```
+
+Break it down:
+
+```text
+INSERT INTO
+     ↓
+We want to add data
+
+students
+     ↓
+Table name
+
+VALUES
+     ↓
+Values we want to insert
+```
+
+The values follow the same order as the table columns.
+
+```text
+student_id → 101
+student_name → Ravi
+age → 20
+department → CSE
+```
+
+---
+
+# 6. INSERT with Column Names
+
+A better practice is to explicitly specify the columns.
+
+```sql
+INSERT INTO students
+    (student_id, student_name, age, department)
+VALUES
+    (101, 'Ravi', 20, 'CSE');
+```
+
+This is generally safer and easier to understand.
+
+### Why?
+
+Because the query clearly tells us:
+
+```text
+101 → student_id
+Ravi → student_name
+20 → age
+CSE → department
+```
+
+---
+
+# 7. Why Specify Column Names?
+
+Consider:
+
+```sql
+INSERT INTO students
+VALUES (101, 'Ravi', 20, 'CSE');
+```
+
+A reader has to know the table's column order.
+
+But:
+
+```sql
+INSERT INTO students
+    (student_id, student_name, age, department)
+VALUES
+    (101, 'Ravi', 20, 'CSE');
+```
+
+is much clearer.
+
+### Recommended style
+
+For teaching and real projects, prefer:
+
+```sql
+INSERT INTO table_name
+    (column1, column2, column3)
+VALUES
+    (value1, value2, value3);
+```
+
+---
+
+# 8. Insert Another Student
+
+```sql
+INSERT INTO students
+    (student_id, student_name, age, department)
+VALUES
+    (102, 'Sita', 21, 'ECE');
+```
+
+Now:
+
+| student_id | student_name | age | department |
+| ---------: | ------------ | --: | ---------- |
+|        101 | Ravi         |  20 | CSE        |
+|        102 | Sita         |  21 | ECE        |
+
+---
+
+# 9. Insert Multiple Records
+
+We don't always have to execute one `INSERT` for every student.
+
+We can insert multiple rows in one statement.
+
+```sql
+INSERT INTO students
+    (student_id, student_name, age, department)
+VALUES
+    (103, 'Arun', 20, 'CSE'),
+    (104, 'Priya', 22, 'EEE'),
+    (105, 'Kiran', 21, 'ECE');
+```
+
+Now our table contains:
+
+| student_id | student_name | age | department |
+| ---------: | ------------ | --: | ---------- |
+|        101 | Ravi         |  20 | CSE        |
+|        102 | Sita         |  21 | ECE        |
+|        103 | Arun         |  20 | CSE        |
+|        104 | Priya        |  22 | EEE        |
+|        105 | Kiran        |  21 | ECE        |
+
+This is useful when inserting multiple known records.
+
+---
+
+# 10. Text Values Need Quotes
+
+When inserting text, we normally use single quotes.
+
+Correct:
+
+```sql
+INSERT INTO students
+VALUES (106, 'Rahul', 20, 'CSE');
+```
+
+Here:
+
+```text
+'Rahul'
+'CSE'
+```
+
+are text values.
+
+Numbers do not need quotes:
+
+```text
+106
+20
+```
+
+So remember:
+
+```text
+Text   → 'Ravi'
+Number → 20
+```
+
+---
+
+# 11. INSERT with Different Data Types
+
+Suppose we have:
+
+```sql
+CREATE TABLE employees (
+    employee_id INT,
+    employee_name VARCHAR(100),
+    salary DECIMAL(10,2),
+    joining_date DATE
+);
+```
+
+We can insert:
+
+```sql
+INSERT INTO employees
+    (employee_id, employee_name, salary, joining_date)
+VALUES
+    (101, 'Ravi', 45000.50, '2026-09-25');
+```
+
+Notice:
+
+```text
+101        → number
+'Ravi'     → text
+45000.50   → decimal
+'2026-09-25' → date representation
+```
+
+---
+
+# 12. What Happens if We Don't Provide a Column?
+
+Suppose our table has:
+
+```text
+student_id
+student_name
+age
+department
+email
+```
+
+But we only provide:
+
+```sql
+INSERT INTO students
+    (student_id, student_name, age, department)
+VALUES
+    (107, 'Anil', 22, 'CSE');
+```
+
+What happens to `email`?
+
+That depends on the column definition.
+
+If the column allows missing values and has no default value, it can be stored as:
+
+```text
+NULL
+```
+
+This connects to what we learned in Phase 0.
+
+---
+
+# 13. INSERT NULL
+
+Suppose we don't know a student's phone number.
+
+We can explicitly insert `NULL`:
+
+```sql
+INSERT INTO students
+    (student_id, student_name, age, department, phone)
+VALUES
+    (108, 'Meena', 21, 'ECE', NULL);
+```
+
+Here:
+
+```text
+phone = NULL
+```
+
+means the phone value is unknown or unavailable.
+
+Remember:
+
+```text
+NULL ≠ 0
+NULL ≠ ''
+```
+
+---
+
+# 14. UPDATE
+
+Now suppose Ravi's age was entered incorrectly.
+
+Current data:
+
+| student_id | student_name | age | department |
+| ---------: | ------------ | --: | ---------- |
+|        101 | Ravi         |  20 | CSE        |
+
+Suppose his correct age is 21.
+
+We need to **change existing data**.
+
+Use:
+
+```text
+UPDATE
+```
+
+Example:
+
+```sql
+UPDATE students
+SET age = 21
+WHERE student_id = 101;
+```
+
+Now:
+
+| student_id | student_name | age | department |
+| ---------: | ------------ | --: | ---------- |
+|        101 | Ravi         |  21 | CSE        |
+
+---
+
+# 15. Understanding UPDATE
+
+Look at:
+
+```sql
+UPDATE students
+SET age = 21
+WHERE student_id = 101;
+```
+
+### UPDATE
+
+Which table?
+
+```text
+students
+```
+
+### SET
+
+What should change?
+
+```text
+age = 21
+```
+
+### WHERE
+
+Which record should change?
+
+```text
+student_id = 101
+```
+
+So:
+
+```text
+UPDATE
+  ↓
+Which table?
+
+SET
+  ↓
+What should change?
+
+WHERE
+  ↓
+Which rows?
+```
+
+---
+
+# 16. Why WHERE Is Important
+
+This is extremely important.
+
+Suppose we write:
+
+```sql
+UPDATE students
+SET age = 21;
+```
+
+There is no `WHERE`.
+
+That can update **every row** in the table.
+
+For example:
+
+Before:
+
+| student_id | student_name | age |
+| ---------: | ------------ | --: |
+|        101 | Ravi         |  20 |
+|        102 | Sita         |  21 |
+|        103 | Arun         |  20 |
+
+After:
+
+```sql
+UPDATE students
+SET age = 21;
+```
+
+we could get:
+
+| student_id | student_name | age |
+| ---------: | ------------ | --: |
+|        101 | Ravi         |  21 |
+|        102 | Sita         |  21 |
+|        103 | Arun         |  21 |
+
+This is often not what we intended.
+
+### Important rule
+
+> **Always understand which rows your UPDATE will affect before executing it.**
+
+---
+
+# 17. Updating Multiple Columns
+
+We can change more than one column.
+
+Suppose Ravi changes department and age.
+
+```sql
+UPDATE students
+SET age = 21,
+    department = 'ECE'
+WHERE student_id = 101;
+```
+
+Now both values are changed.
+
+---
+
+# 18. UPDATE Using Another Condition
+
+Suppose we want to update students belonging to CSE.
+
+For example:
+
+```sql
+UPDATE students
+SET department = 'Computer Science'
+WHERE department = 'CSE';
+```
+
+Every matching row can be updated.
+
+This introduces an important SQL idea:
+
+> One SQL statement can affect multiple rows.
+
+---
+
+# 19. DELETE
+
+Now suppose a student record should be removed.
+
+We use:
+
+```text
+DELETE
+```
+
+Example:
+
+```sql
+DELETE FROM students
+WHERE student_id = 105;
+```
+
+This removes the student whose ID is `105`.
+
+---
+
+# 20. Understanding DELETE
+
+```sql
+DELETE FROM students
+WHERE student_id = 105;
+```
+
+means:
+
+```text
+DELETE
+   ↓
+Remove data
+
+FROM students
+   ↓
+From the students table
+
+WHERE student_id = 105
+   ↓
+Only the matching record
+```
+
+---
+
+# 21. DELETE with WHERE
+
+This is extremely important.
+
+Suppose:
+
+| student_id | student_name |
+| ---------: | ------------ |
+|        101 | Ravi         |
+|        102 | Sita         |
+|        103 | Arun         |
+
+We run:
+
+```sql
+DELETE FROM students
+WHERE student_id = 102;
+```
+
+Result:
+
+| student_id | student_name |
+| ---------: | ------------ |
+|        101 | Ravi         |
+|        103 | Arun         |
+
+Only Sita's record was deleted.
+
+---
+
+# 22. DELETE Without WHERE
+
+Now consider:
+
+```sql
+DELETE FROM students;
+```
+
+There is no `WHERE`.
+
+This means:
+
+> Delete all rows from the table.
+
+The table itself remains, but the records are removed.
+
+Before:
+
+```text
+students
+│
+├── Ravi
+├── Sita
+├── Arun
+└── Priya
+```
+
+After:
+
+```text
+students
+│
+└── Empty
+```
+
+The table structure still exists.
+
+---
+
+# 23. DELETE vs TRUNCATE
+
+We already saw `TRUNCATE` in DDL.
+
+Now compare:
+
+```text
+DELETE
+```
+
+and:
+
+```text
+TRUNCATE
+```
+
+| DELETE                   | TRUNCATE                   |
+| ------------------------ | -------------------------- |
+| Removes rows             | Removes all rows           |
+| Can use `WHERE`          | Does not use `WHERE`       |
+| Can remove selected rows | Removes all rows           |
+| Table remains            | Table remains              |
+| DML operation            | Commonly classified as DDL |
+
+Example:
+
+```sql
+DELETE FROM students
+WHERE student_id = 101;
+```
+
+removes one matching row.
+
+But:
+
+```sql
+TRUNCATE TABLE students;
+```
+
+removes all rows.
+
+---
+
+# 24. DML vs DDL
+
+Let's compare the concepts.
+
+### DDL
+
+Works with structure:
+
+```text
+CREATE
+ALTER
+DROP
+TRUNCATE
+```
+
+### DML
+
+Works with data:
+
+```text
+INSERT
+UPDATE
+DELETE
+```
+
+Think:
+
+```text
+DATABASE
+   │
+   ├── Structure
+   │      ↓
+   │     DDL
+   │
+   └── Data
+          ↓
+         DML
+```
+
+---
+
+# 25. Complete Student Example
+
+Let's start with an empty table:
+
+```sql
+CREATE TABLE students (
+    student_id INT,
+    student_name VARCHAR(100),
+    age INT,
+    department VARCHAR(50)
+);
+```
+
+### Step 1 — Insert data
+
+```sql
+INSERT INTO students
+    (student_id, student_name, age, department)
+VALUES
+    (101, 'Ravi', 20, 'CSE'),
+    (102, 'Sita', 21, 'ECE'),
+    (103, 'Arun', 20, 'CSE'),
+    (104, 'Priya', 22, 'EEE');
+```
+
+### Step 2 — Change Ravi's age
+
+```sql
+UPDATE students
+SET age = 21
+WHERE student_id = 101;
+```
+
+### Step 3 — Change Sita's department
+
+```sql
+UPDATE students
+SET department = 'CSE'
+WHERE student_id = 102;
+```
+
+### Step 4 — Remove Arun
+
+```sql
+DELETE FROM students
+WHERE student_id = 103;
+```
+
+Now the table contains:
+
+| student_id | student_name | age | department |
+| ---------: | ------------ | --: | ---------- |
+|        101 | Ravi         |  21 | CSE        |
+|        102 | Sita         |  21 | CSE        |
+|        104 | Priya        |  22 | EEE        |
+
+---
+
+# 26. Important DML Safety Rule
+
+Before running:
+
+```sql
+UPDATE
+```
+
+or:
+
+```sql
+DELETE
+```
+
+ask yourself:
+
+> **Which rows will this statement affect?**
+
+For example:
+
+```sql
+UPDATE students
+SET department = 'CSE'
+WHERE student_id = 101;
+```
+
+Only one student should be affected.
+
+But:
+
+```sql
+UPDATE students
+SET department = 'CSE';
+```
+
+may affect every student.
+
+Similarly:
+
+```sql
+DELETE FROM students
+WHERE student_id = 101;
+```
+
+removes one matching record.
+
+While:
+
+```sql
+DELETE FROM students;
+```
+
+removes all records.
+
+---
+
+# 27. A Good Habit: Test the Condition First
+
+Before executing:
+
+```sql
+UPDATE students
+SET department = 'CSE'
+WHERE age = 20;
+```
+
+first check which rows match the condition.
+
+Later, we will learn `SELECT` in detail.
+
+For now, the idea is:
+
+```text
+First understand the target rows
+             ↓
+Then UPDATE / DELETE
+```
+
+This habit becomes very important when working with production databases.
+
+---
+
+# 28. Common INSERT Mistakes
+
+## Mistake 1 — Wrong number of values
+
+Table:
+
+```text
+student_id
+student_name
+age
+```
+
+Wrong:
+
+```sql
+INSERT INTO students
+VALUES (101, 'Ravi');
+```
+
+There are only two values for three columns.
+
+---
+
+## Mistake 2 — Wrong order
+
+Suppose:
+
+```text
+student_id
+student_name
+age
+```
+
+Then:
+
+```sql
+VALUES ('Ravi', 101, 20);
+```
+
+is the wrong order.
+
+Prefer specifying columns:
+
+```sql
+INSERT INTO students
+    (student_id, student_name, age)
+VALUES
+    (101, 'Ravi', 20);
+```
+
+---
+
+## Mistake 3 — Forgetting quotes for text
+
+Wrong:
+
+```sql
+VALUES (101, Ravi, 20);
+```
+
+Correct:
+
+```sql
+VALUES (101, 'Ravi', 20);
+```
+
+---
+
+# 29. Common UPDATE Mistakes
+
+### Mistake 1 — Forgetting WHERE
+
+Dangerous:
+
+```sql
+UPDATE students
+SET age = 25;
+```
+
+This may update every row.
+
+---
+
+### Mistake 2 — Wrong condition
+
+For example:
+
+```sql
+UPDATE students
+SET age = 25
+WHERE student_id = 999;
+```
+
+If ID `999` doesn't exist, no row may be changed.
+
+Always verify the condition.
+
+---
+
+# 30. Common DELETE Mistakes
+
+### Mistake 1 — Forgetting WHERE
+
+```sql
+DELETE FROM students;
+```
+
+This removes all rows.
+
+If you only intended to remove one student, this is a serious mistake.
+
+---
+
+# 31. DML Command Summary
+
+| Command | Purpose     | Example              |
+| ------- | ----------- | -------------------- |
+| INSERT  | Add data    | Add a student        |
+| UPDATE  | Change data | Change student's age |
+| DELETE  | Remove data | Remove a student     |
+
+Remember:
+
+```text
+INSERT → Add
+UPDATE → Change
+DELETE  → Remove
+```
+
+---
+
+# 32. Real-World Example
+
+Imagine an e-commerce application.
+
+### Customers
+
+```text
+customer_id
+customer_name
+email
+```
+
+### Products
+
+```text
+product_id
+product_name
+price
+```
+
+When a new customer registers:
+
+```text
+INSERT
+```
+
+When a customer changes their email:
+
+```text
+UPDATE
+```
+
+When a customer account is removed:
+
+```text
+DELETE
+```
+
+So DML represents everyday operations in real applications.
+
+---
+
+# 33. Practice — INSERT
+
+Create this table:
+
+```sql
+CREATE TABLE employees (
+    employee_id INT,
+    employee_name VARCHAR(100),
+    age INT,
+    department VARCHAR(50),
+    salary DECIMAL(10,2)
+);
+```
+
+Now insert these employees:
+
+| employee_id | employee_name | age | department | salary |
+| ----------: | ------------- | --: | ---------- | -----: |
+|         101 | Ravi          |  25 | IT         |  45000 |
+|         102 | Sita          |  27 | HR         |  50000 |
+|         103 | Arun          |  24 | IT         |  42000 |
+|         104 | Priya         |  29 | Finance    |  55000 |
+|         105 | Kiran         |  26 | IT         |  48000 |
+
+Try inserting all five records using one statement.
+
+---
+
+# 34. Practice — UPDATE
+
+Using the `employees` table:
+
+### Exercise 1
+
+Change Ravi's salary to:
+
+```text
+50000
+```
+
+### Exercise 2
+
+Change Sita's department to:
+
+```text
+Finance
+```
+
+### Exercise 3
+
+Increase Arun's salary to:
+
+```text
+46000
+```
+
+### Exercise 4
+
+Change Priya's age to:
+
+```text
+30
+```
+
+---
+
+# 35. Practice — DELETE
+
+Using the same table:
+
+### Exercise 1
+
+Delete employee `105`.
+
+### Exercise 2
+
+Delete the employee named `Arun`.
+
+### Exercise 3
+
+Write a statement that would remove all employees.
+
+> Be careful with Exercise 3.
+
+---
+
+# 36. Mini Challenge
+
+Create this table:
+
+```text
+products
+```
+
+with:
+
+```text
+product_id
+product_name
+category
+price
+quantity
+```
+
+Insert at least five products.
+
+Then:
+
+1. Change the price of one product.
+2. Change the quantity of one product.
+3. Change the category of one product.
+4. Delete one product.
+5. Write the command that would delete all products.
+
+Do not copy the previous examples.
+
+Try writing the SQL yourself.
+
+---
+
+# 37. Interview Questions
+
+### Q1. What is DML?
+
+DML stands for Data Manipulation Language and is used to manipulate data stored in tables.
+
+### Q2. What are the common DML commands?
+
+```text
+INSERT
+UPDATE
+DELETE
+```
+
+### Q3. What is INSERT used for?
+
+To add new records to a table.
+
+### Q4. What is UPDATE used for?
+
+To modify existing records.
+
+### Q5. What is DELETE used for?
+
+To remove records.
+
+### Q6. What happens if UPDATE is executed without WHERE?
+
+It can update all rows in the table.
+
+### Q7. What happens if DELETE is executed without WHERE?
+
+It deletes all rows from the table while leaving the table structure.
+
+### Q8. What is the difference between DELETE and DROP?
+
+```text
+DELETE → Removes rows
+DROP   → Removes the table itself
+```
+
+### Q9. What is the difference between DELETE and TRUNCATE?
+
+```text
+DELETE
+→ Removes rows
+→ Can use WHERE
+
+TRUNCATE
+→ Removes all rows
+→ Does not use WHERE
+→ Keeps table structure
+```
+
+---
+
+# 38. Final Mental Model
+
+Remember:
+
+```text
+                    DML
+                     │
+          ┌──────────┼──────────┐
+          │          │          │
+        INSERT     UPDATE     DELETE
+          │          │          │
+          ↓          ↓          ↓
+         ADD       CHANGE     REMOVE
+          │          │          │
+          └──────────┼──────────┘
+                     ↓
+                   DATA
+                     ↓
+                  TABLE
+```
+
+And:
+
+```text
+DDL
+ ↓
+Create the table
+
+DML
+ ↓
+Put data into the table
+
+DML
+ ↓
+Change the data
+
+DML
+ ↓
+Remove the data
+```
+
+---
+
+# 39. What We Have Learned
+
+At this point, we know how to:
+
+```text
+CREATE TABLE
+      ↓
+INSERT data
+      ↓
+UPDATE data
+      ↓
+DELETE data
+```
+
+But there is one important thing missing.
+
+We need to be able to **look at the data**.
+
+For example:
+
+> Show all students.
+
+> Show only CSE students.
+
+> Show students older than 20.
+
+> Show employees with salary greater than 50,000.
+
+To do that, we need:
+
+# SELECT
+
+That is the focus of the next phase.
+
+---
+
+# 🚀 Next: SELECT
+
+In the next phase, we will learn how to retrieve data using:
+
+```text
+SELECT
+FROM
+WHERE
+ORDER BY
+DISTINCT
+LIMIT
+```
+
+This is where SQL starts becoming a real **query language**.
+
+We will use the same `college_db` throughout the course so students don't have to learn a new dataset every chapter.
