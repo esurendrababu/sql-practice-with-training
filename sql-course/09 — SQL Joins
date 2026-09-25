@@ -1,0 +1,1841 @@
+# 09 — SQL Joins
+
+> **Combining data from multiple tables**
+
+So far, we have mostly worked with one table at a time.
+
+But real databases usually contain **multiple related tables**.
+
+For example:
+
+```text
+students
+courses
+departments
+employees
+orders
+customers
+products
+```
+
+The information we need is often spread across different tables.
+
+For example:
+
+> Find the employee name and department name.
+
+The employee table may contain:
+
+| employee_id | employee_name | department_id |
+| ----------: | ------------- | ------------: |
+|         101 | Ravi          |            10 |
+|         102 | Sita          |            20 |
+|         103 | Arun          |            10 |
+
+The department table may contain:
+
+| department_id | department_name |
+| ------------: | --------------- |
+|            10 | IT              |
+|            20 | HR              |
+
+The employee table has the `department_id`, but not the department name.
+
+We need to **combine the two tables**.
+
+That is where `JOIN` is used.
+
+---
+
+# 1. What Is a JOIN?
+
+A `JOIN` allows us to combine rows from two or more tables based on a related column.
+
+Think:
+
+```text
+Table A
+   +
+Table B
+   ↓
+ JOIN
+   ↓
+Combined Result
+```
+
+For example:
+
+```text
+employees
+     +
+departments
+     ↓
+    JOIN
+     ↓
+employee name + department name
+```
+
+---
+
+# 2. Why Do We Need JOINs?
+
+Suppose we have:
+
+### employees
+
+| employee_id | employee_name | department_id |
+| ----------: | ------------- | ------------: |
+|         101 | Ravi          |            10 |
+|         102 | Sita          |            20 |
+|         103 | Arun          |            10 |
+|         104 | Priya         |            30 |
+
+### departments
+
+| department_id | department_name |
+| ------------: | --------------- |
+|            10 | IT              |
+|            20 | HR              |
+|            30 | Finance         |
+
+We want:
+
+| employee_name | department_name |
+| ------------- | --------------- |
+| Ravi          | IT              |
+| Sita          | HR              |
+| Arun          | IT              |
+| Priya         | Finance         |
+
+The information exists in two different tables.
+
+A `JOIN` combines it.
+
+---
+
+# 3. The Relationship Between Tables
+
+Before learning joins, students must understand the relationship:
+
+```text
+departments
+     │
+     │ department_id
+     │
+     ▼
+employees
+```
+
+`departments.department_id` is the primary key.
+
+`employees.department_id` is the foreign key.
+
+So:
+
+```text
+departments.department_id
+          ↓
+       referenced by
+          ↓
+employees.department_id
+```
+
+This relationship allows us to join the tables.
+
+---
+
+# 4. Our Practice Database
+
+We will use these tables throughout this chapter.
+
+## departments
+
+```sql
+CREATE TABLE departments (
+    department_id INT PRIMARY KEY,
+    department_name VARCHAR(100) NOT NULL
+);
+```
+
+Insert data:
+
+```sql
+INSERT INTO departments
+    (department_id, department_name)
+VALUES
+    (10, 'IT'),
+    (20, 'HR'),
+    (30, 'Finance'),
+    (40, 'Marketing');
+```
+
+---
+
+## employees
+
+```sql
+CREATE TABLE employees (
+    employee_id INT PRIMARY KEY,
+    employee_name VARCHAR(100) NOT NULL,
+    department_id INT,
+    salary DECIMAL(10,2),
+
+    FOREIGN KEY (department_id)
+        REFERENCES departments(department_id)
+);
+```
+
+Insert data:
+
+```sql
+INSERT INTO employees
+    (employee_id, employee_name, department_id, salary)
+VALUES
+    (101, 'Ravi', 10, 45000),
+    (102, 'Sita', 20, 52000),
+    (103, 'Arun', 10, 48000),
+    (104, 'Priya', 30, 65000),
+    (105, 'Kiran', 10, 55000),
+    (106, 'Anil', 20, 47000);
+```
+
+Notice:
+
+```text
+Department 40 → Marketing
+```
+
+does not have an employee.
+
+This will help us understand different types of joins.
+
+---
+
+# 5. Types of JOINs
+
+The main joins students should learn are:
+
+```text
+JOINs
+│
+├── INNER JOIN
+├── LEFT JOIN
+├── RIGHT JOIN
+└── FULL OUTER JOIN
+```
+
+There are also:
+
+```text
+CROSS JOIN
+SELF JOIN
+```
+
+We will learn those later.
+
+---
+
+# 6. INNER JOIN
+
+`INNER JOIN` returns only the rows that have a matching value in both tables.
+
+Think:
+
+```text
+Table A       Table B
+
+   A    ∩    B
+
+Only matching rows
+```
+
+---
+
+# 7. Basic INNER JOIN Syntax
+
+```sql
+SELECT columns
+FROM table1
+INNER JOIN table2
+    ON table1.column = table2.column;
+```
+
+Example:
+
+```sql
+SELECT
+    employees.employee_name,
+    departments.department_name
+FROM employees
+INNER JOIN departments
+    ON employees.department_id = departments.department_id;
+```
+
+Result:
+
+| employee_name | department_name |
+| ------------- | --------------- |
+| Ravi          | IT              |
+| Sita          | HR              |
+| Arun          | IT              |
+| Priya         | Finance         |
+| Kiran         | IT              |
+| Anil          | HR              |
+
+Marketing does not appear because there is no matching employee.
+
+---
+
+# 8. Understanding ON
+
+The `ON` condition tells SQL **how the tables are related**.
+
+```sql
+ON employees.department_id = departments.department_id
+```
+
+Think:
+
+```text
+employees.department_id
+          =
+departments.department_id
+```
+
+SQL looks for matching values.
+
+For example:
+
+```text
+Employee Ravi
+department_id = 10
+
+Department
+department_id = 10
+department_name = IT
+
+          ↓
+
+Ravi → IT
+```
+
+---
+
+# 9. Table Aliases
+
+Long table names can make queries difficult to read.
+
+Instead of:
+
+```sql
+SELECT
+    employees.employee_name,
+    departments.department_name
+FROM employees
+INNER JOIN departments
+    ON employees.department_id = departments.department_id;
+```
+
+we can use aliases:
+
+```sql
+SELECT
+    e.employee_name,
+    d.department_name
+FROM employees AS e
+INNER JOIN departments AS d
+    ON e.department_id = d.department_id;
+```
+
+This is much cleaner.
+
+---
+
+# 10. Alias Syntax
+
+We can write:
+
+```sql
+FROM employees AS e
+```
+
+or:
+
+```sql
+FROM employees e
+```
+
+Both are commonly used.
+
+Then:
+
+```text
+e → employees
+d → departments
+```
+
+So:
+
+```sql
+e.employee_name
+```
+
+means:
+
+```text
+employee_name from employees
+```
+
+---
+
+# 11. INNER JOIN with More Columns
+
+We can retrieve salary too:
+
+```sql
+SELECT
+    e.employee_id,
+    e.employee_name,
+    d.department_name,
+    e.salary
+FROM employees e
+INNER JOIN departments d
+    ON e.department_id = d.department_id;
+```
+
+Result:
+
+| employee_id | employee_name | department_name | salary |
+| ----------: | ------------- | --------------- | -----: |
+|         101 | Ravi          | IT              |  45000 |
+|         102 | Sita          | HR              |  52000 |
+|         103 | Arun          | IT              |  48000 |
+|         104 | Priya         | Finance         |  65000 |
+|         105 | Kiran         | IT              |  55000 |
+|         106 | Anil          | HR              |  47000 |
+
+---
+
+# 12. JOIN + WHERE
+
+A JOIN can be combined with `WHERE`.
+
+Question:
+
+> Find employees working in IT.
+
+```sql
+SELECT
+    e.employee_name,
+    d.department_name
+FROM employees e
+INNER JOIN departments d
+    ON e.department_id = d.department_id
+WHERE d.department_name = 'IT';
+```
+
+Result:
+
+| employee_name | department_name |
+| ------------- | --------------- |
+| Ravi          | IT              |
+| Arun          | IT              |
+| Kiran         | IT              |
+
+---
+
+# 13. JOIN + ORDER BY
+
+Question:
+
+> Display employees with their departments, sorted by salary.
+
+```sql
+SELECT
+    e.employee_name,
+    d.department_name,
+    e.salary
+FROM employees e
+INNER JOIN departments d
+    ON e.department_id = d.department_id
+ORDER BY e.salary DESC;
+```
+
+---
+
+# 14. JOIN + Aggregate Functions
+
+We can also combine joins with aggregation.
+
+For example:
+
+> Find the total salary of all employees.
+
+```sql
+SELECT
+    SUM(e.salary) AS total_salary
+FROM employees e
+INNER JOIN departments d
+    ON e.department_id = d.department_id;
+```
+
+The join allows us to work with information from both tables.
+
+---
+
+# 15. LEFT JOIN
+
+`LEFT JOIN` returns:
+
+> **All rows from the left table + matching rows from the right table.**
+
+Example:
+
+```sql
+SELECT
+    d.department_name,
+    e.employee_name
+FROM departments d
+LEFT JOIN employees e
+    ON d.department_id = e.department_id;
+```
+
+Result:
+
+| department_name | employee_name |
+| --------------- | ------------- |
+| IT              | Ravi          |
+| IT              | Arun          |
+| IT              | Kiran         |
+| HR              | Sita          |
+| HR              | Anil          |
+| Finance         | Priya         |
+| Marketing       | NULL          |
+
+Notice:
+
+```text
+Marketing → NULL
+```
+
+Why?
+
+Because Marketing exists in `departments`, but there is no employee associated with it.
+
+---
+
+# 16. LEFT JOIN Mental Model
+
+```text
+LEFT TABLE
+    ↓
+Keep EVERYTHING
+    +
+Matching data from RIGHT TABLE
+```
+
+So:
+
+```text
+departments
+     ↓
+LEFT JOIN
+     ↓
+employees
+```
+
+means:
+
+> Keep every department, even if it has no employee.
+
+---
+
+# 17. INNER JOIN vs LEFT JOIN
+
+This is one of the most important differences.
+
+### INNER JOIN
+
+```text
+Only matching rows
+```
+
+### LEFT JOIN
+
+```text
+All left-table rows
++
+matching right-table rows
+```
+
+Example:
+
+```text
+Departments:
+
+IT
+HR
+Finance
+Marketing
+```
+
+Employees exist in:
+
+```text
+IT
+HR
+Finance
+```
+
+But not Marketing.
+
+### INNER JOIN
+
+```text
+IT
+HR
+Finance
+```
+
+### LEFT JOIN
+
+```text
+IT
+HR
+Finance
+Marketing → NULL
+```
+
+---
+
+# 18. Finding Records Without a Match
+
+One of the most useful patterns with `LEFT JOIN` is finding missing relationships.
+
+Question:
+
+> Which departments have no employees?
+
+```sql
+SELECT
+    d.department_id,
+    d.department_name
+FROM departments d
+LEFT JOIN employees e
+    ON d.department_id = e.department_id
+WHERE e.employee_id IS NULL;
+```
+
+Result:
+
+| department_id | department_name |
+| ------------: | --------------- |
+|            40 | Marketing       |
+
+This is a very important real-world SQL pattern.
+
+---
+
+# 19. RIGHT JOIN
+
+`RIGHT JOIN` is essentially the opposite perspective of `LEFT JOIN`.
+
+Example:
+
+```sql
+SELECT
+    d.department_name,
+    e.employee_name
+FROM employees e
+RIGHT JOIN departments d
+    ON e.department_id = d.department_id;
+```
+
+This keeps all rows from the **right table**.
+
+In this query:
+
+```text
+employees
+     RIGHT JOIN
+departments
+```
+
+all departments are preserved.
+
+---
+
+# 20. RIGHT JOIN vs LEFT JOIN
+
+These can often express the same result by changing table order.
+
+For example:
+
+```sql
+FROM departments d
+LEFT JOIN employees e
+```
+
+is conceptually equivalent to:
+
+```sql
+FROM employees e
+RIGHT JOIN departments d
+```
+
+Because both preserve all departments.
+
+For readability, many SQL developers prefer `LEFT JOIN` and arrange the tables accordingly.
+
+---
+
+# 21. FULL OUTER JOIN
+
+`FULL OUTER JOIN` returns:
+
+> All matching and non-matching rows from both tables.
+
+Conceptually:
+
+```text
+LEFT JOIN
++
+RIGHT JOIN
+```
+
+Example:
+
+```sql
+SELECT
+    d.department_name,
+    e.employee_name
+FROM departments d
+FULL OUTER JOIN employees e
+    ON d.department_id = e.department_id;
+```
+
+The result contains:
+
+```text
+Matching departments/employees
++
+Departments without employees
++
+Employees without matching departments
+```
+
+However:
+
+> **Not every database supports `FULL OUTER JOIN` directly.**
+
+For example, MySQL does not provide native `FULL OUTER JOIN` syntax.
+
+Students should learn the concept first and then learn the DBMS-specific alternative when required.
+
+---
+
+# 22. CROSS JOIN
+
+A `CROSS JOIN` produces every possible combination of rows from two tables.
+
+Suppose:
+
+### colors
+
+| color |
+| ----- |
+| Red   |
+| Blue  |
+
+### sizes
+
+| size  |
+| ----- |
+| Small |
+| Large |
+
+Then:
+
+```sql
+SELECT *
+FROM colors
+CROSS JOIN sizes;
+```
+
+produces:
+
+| color | size  |
+| ----- | ----- |
+| Red   | Small |
+| Red   | Large |
+| Blue  | Small |
+| Blue  | Large |
+
+If table A has 2 rows and table B has 2 rows:
+
+```text
+2 × 2 = 4 rows
+```
+
+---
+
+# 23. Be Careful with CROSS JOIN
+
+If one table has:
+
+```text
+100 rows
+```
+
+and another has:
+
+```text
+100 rows
+```
+
+then:
+
+```text
+100 × 100 = 10,000 rows
+```
+
+A cross join can therefore produce a very large result.
+
+Use it intentionally.
+
+---
+
+# 24. SELF JOIN
+
+A `SELF JOIN` means joining a table with itself.
+
+This is useful when rows in the same table have relationships with other rows in that table.
+
+For example, an employee may have a manager.
+
+### employees
+
+| employee_id | employee_name | manager_id |
+| ----------: | ------------- | ---------: |
+|         101 | Ravi          |       NULL |
+|         102 | Sita          |        101 |
+|         103 | Arun          |        101 |
+|         104 | Priya         |        102 |
+
+Here:
+
+```text
+Sita → Ravi
+Arun → Ravi
+Priya → Sita
+```
+
+The manager is also an employee.
+
+---
+
+# 25. SELF JOIN Example
+
+```sql
+SELECT
+    e.employee_name AS employee,
+    m.employee_name AS manager
+FROM employees e
+LEFT JOIN employees m
+    ON e.manager_id = m.employee_id;
+```
+
+Here:
+
+```text
+e → employee
+m → manager
+```
+
+Even though both aliases refer to the same table.
+
+Result:
+
+| employee | manager |
+| -------- | ------- |
+| Ravi     | NULL    |
+| Sita     | Ravi    |
+| Arun     | Ravi    |
+| Priya    | Sita    |
+
+---
+
+# 26. Joining More Than Two Tables
+
+Real applications often require multiple joins.
+
+Suppose we have:
+
+```text
+employees
+departments
+locations
+```
+
+Relationship:
+
+```text
+employees
+    ↓
+departments
+    ↓
+locations
+```
+
+We can join all three.
+
+```sql
+SELECT
+    e.employee_name,
+    d.department_name,
+    l.location_name
+FROM employees e
+INNER JOIN departments d
+    ON e.department_id = d.department_id
+INNER JOIN locations l
+    ON d.location_id = l.location_id;
+```
+
+The same idea applies when joining more tables.
+
+---
+
+# 27. JOIN Conditions Can Use Multiple Columns
+
+Sometimes a relationship depends on more than one column.
+
+Example:
+
+```sql
+ON a.student_id = b.student_id
+AND a.course_id = b.course_id
+```
+
+The important idea is:
+
+> A JOIN condition defines how rows from the tables should match.
+
+---
+
+# 28. JOIN with Aggregation
+
+Now let's combine concepts students already know.
+
+Question:
+
+> How many employees are in each department?
+
+```sql
+SELECT
+    d.department_name,
+    COUNT(e.employee_id) AS employee_count
+FROM departments d
+LEFT JOIN employees e
+    ON d.department_id = e.department_id
+GROUP BY d.department_id, d.department_name;
+```
+
+Result:
+
+| department_name | employee_count |
+| --------------- | -------------: |
+| IT              |              3 |
+| HR              |              2 |
+| Finance         |              1 |
+| Marketing       |              0 |
+
+Notice why `LEFT JOIN` is useful.
+
+Marketing still appears.
+
+---
+
+# 29. Why COUNT(e.employee_id) Instead of COUNT(*)?
+
+This is an important concept.
+
+With:
+
+```sql
+LEFT JOIN
+```
+
+Marketing produces a row like:
+
+| department_name | employee_id |
+| --------------- | ----------- |
+| Marketing       | NULL        |
+
+If we use:
+
+```sql
+COUNT(*)
+```
+
+the joined row itself can be counted.
+
+Instead:
+
+```sql
+COUNT(e.employee_id)
+```
+
+counts only actual employee IDs.
+
+Therefore:
+
+```text
+Marketing
+→ employee_count = 0
+```
+
+---
+
+# 30. JOIN + SUM
+
+Question:
+
+> Find total salary for each department.
+
+```sql
+SELECT
+    d.department_name,
+    SUM(e.salary) AS total_salary
+FROM departments d
+LEFT JOIN employees e
+    ON d.department_id = e.department_id
+GROUP BY d.department_id, d.department_name;
+```
+
+Result conceptually:
+
+| department_name | total_salary |
+| --------------- | -----------: |
+| IT              |       148000 |
+| HR              |        99000 |
+| Finance         |        65000 |
+| Marketing       |         NULL |
+
+If you want `0` instead of `NULL`:
+
+```sql
+SELECT
+    d.department_name,
+    COALESCE(SUM(e.salary), 0) AS total_salary
+FROM departments d
+LEFT JOIN employees e
+    ON d.department_id = e.department_id
+GROUP BY d.department_id, d.department_name;
+```
+
+---
+
+# 31. JOIN + AVG
+
+Question:
+
+> Find average salary for each department.
+
+```sql
+SELECT
+    d.department_name,
+    AVG(e.salary) AS average_salary
+FROM departments d
+LEFT JOIN employees e
+    ON d.department_id = e.department_id
+GROUP BY d.department_id, d.department_name;
+```
+
+---
+
+# 32. JOIN + WHERE
+
+Suppose we want only departments where employees earn more than 50,000.
+
+Be careful about where the filter is applied.
+
+For example:
+
+```sql
+SELECT
+    d.department_name,
+    e.employee_name,
+    e.salary
+FROM departments d
+INNER JOIN employees e
+    ON d.department_id = e.department_id
+WHERE e.salary > 50000;
+```
+
+This filters employee rows after the join result is produced.
+
+---
+
+# 33. JOIN + GROUP BY + HAVING
+
+Now combine everything.
+
+Question:
+
+> Find departments whose average salary is greater than 50,000.
+
+```sql
+SELECT
+    d.department_name,
+    AVG(e.salary) AS average_salary
+FROM departments d
+INNER JOIN employees e
+    ON d.department_id = e.department_id
+GROUP BY d.department_id, d.department_name
+HAVING AVG(e.salary) > 50000;
+```
+
+This is an important real-world query.
+
+---
+
+# 34. SQL Query Thinking Process
+
+When solving JOIN problems, teach students to think:
+
+```text
+1. What information do I need?
+          ↓
+2. Which table contains each piece?
+          ↓
+3. How are the tables related?
+          ↓
+4. Which JOIN should I use?
+          ↓
+5. What columns should I SELECT?
+          ↓
+6. Do I need WHERE?
+          ↓
+7. Do I need GROUP BY?
+          ↓
+8. Do I need HAVING?
+```
+
+---
+
+# 35. Example Thinking
+
+Question:
+
+> Display employee name, department name and salary for IT employees.
+
+Think:
+
+```text
+Employee name
+→ employees
+
+Department name
+→ departments
+
+Salary
+→ employees
+
+Relationship
+→ department_id
+
+Need matching records
+→ INNER JOIN
+
+Filter
+→ IT
+```
+
+Then:
+
+```sql
+SELECT
+    e.employee_name,
+    d.department_name,
+    e.salary
+FROM employees e
+INNER JOIN departments d
+    ON e.department_id = d.department_id
+WHERE d.department_name = 'IT';
+```
+
+---
+
+# 36. INNER JOIN vs LEFT JOIN — Easy Memory
+
+Remember:
+
+```text
+INNER JOIN
+→ Give me only matching records.
+
+LEFT JOIN
+→ Give me everything from the left table,
+  even if there is no match.
+```
+
+Example:
+
+```text
+A = Departments
+B = Employees
+```
+
+```text
+A INNER JOIN B
+→ departments that have employees
+
+A LEFT JOIN B
+→ all departments,
+  including departments with no employees
+```
+
+---
+
+# 37. Common JOIN Mistakes
+
+## Mistake 1 — Forgetting the ON condition
+
+Bad:
+
+```sql
+SELECT *
+FROM employees
+JOIN departments;
+```
+
+This may produce a Cartesian product depending on the syntax/database.
+
+Use:
+
+```sql
+JOIN departments
+ON employees.department_id = departments.department_id;
+```
+
+---
+
+# 38. Mistake 2 — Joining the Wrong Columns
+
+Wrong:
+
+```sql
+ON e.employee_id = d.department_id
+```
+
+The relationship is:
+
+```sql
+ON e.department_id = d.department_id
+```
+
+Always identify the actual relationship before writing the JOIN.
+
+---
+
+# 39. Mistake 3 — Ambiguous Column Names
+
+Suppose both tables contain:
+
+```text
+department_id
+```
+
+Instead of:
+
+```sql
+SELECT department_id
+```
+
+write:
+
+```sql
+SELECT
+    e.department_id,
+    d.department_id
+```
+
+or simply select the one you need:
+
+```sql
+SELECT e.department_id
+```
+
+Table aliases make this much clearer.
+
+---
+
+# 40. Mistake 4 — Using WHERE with LEFT JOIN Incorrectly
+
+Consider:
+
+```sql
+SELECT
+    d.department_name,
+    e.employee_name
+FROM departments d
+LEFT JOIN employees e
+    ON d.department_id = e.department_id
+WHERE e.salary > 50000;
+```
+
+The `WHERE` condition removes rows where `e.salary` is `NULL`.
+
+That can make the query behave more like an inner join for that condition.
+
+Students should understand this carefully before using `LEFT JOIN` with filters on the right-side table.
+
+---
+
+# 41. JOIN Order Matters Conceptually
+
+Consider:
+
+```sql
+FROM departments d
+LEFT JOIN employees e
+```
+
+The left table is:
+
+```text
+departments
+```
+
+Therefore all departments are preserved.
+
+If we reverse them:
+
+```sql
+FROM employees e
+LEFT JOIN departments d
+```
+
+then all employees are preserved.
+
+This is why choosing the correct left table matters.
+
+---
+
+# 42. JOIN and NULL
+
+Suppose Marketing has no employees.
+
+With:
+
+```sql
+LEFT JOIN
+```
+
+we get:
+
+| department_name | employee_name |
+| --------------- | ------------- |
+| Marketing       | NULL          |
+
+The `NULL` does not mean that an employee has an unknown name.
+
+It means:
+
+> There was no matching employee row.
+
+This is an important way to interpret `NULL` after a join.
+
+---
+
+# 43. JOIN vs UNION
+
+Students often confuse these.
+
+### JOIN
+
+Combines columns from related tables.
+
+```text
+Table A + Table B
+       ↓
+More columns
+```
+
+### UNION
+
+Combines rows from compatible queries.
+
+```text
+Query A
+   +
+Query B
+   ↓
+More rows
+```
+
+Example:
+
+```text
+JOIN
+→ side by side
+
+UNION
+→ one result underneath another
+```
+
+`UNION` will be studied separately.
+
+---
+
+# 44. JOIN vs Subquery
+
+There are often multiple ways to solve a SQL problem.
+
+For example:
+
+```text
+JOIN
+Subquery
+CTE
+```
+
+Students should first learn to recognize relationships and use JOINs clearly.
+
+Later, they can compare different approaches.
+
+---
+
+# 45. Real-World JOIN Examples
+
+JOINs are everywhere.
+
+### E-commerce
+
+```text
+customers
+    ↓
+orders
+    ↓
+order_items
+    ↓
+products
+```
+
+Question:
+
+> Which products did each customer purchase?
+
+---
+
+### Banking
+
+```text
+customers
+    ↓
+accounts
+    ↓
+transactions
+```
+
+Question:
+
+> Show customer name and transaction amount.
+
+---
+
+### College
+
+```text
+students
+    ↓
+enrollments
+    ↓
+courses
+```
+
+Question:
+
+> Which courses is each student taking?
+
+---
+
+### Company
+
+```text
+employees
+    ↓
+departments
+    ↓
+locations
+```
+
+Question:
+
+> Which location does each employee work in?
+
+---
+
+# 46. Exercises
+
+Use the `employees` and `departments` tables created at the beginning of this lesson.
+
+## Beginner
+
+### 1.
+
+Display all employee names and their department names.
+
+### 2.
+
+Display employee ID, employee name and department name.
+
+### 3.
+
+Display only employees from the IT department.
+
+### 4.
+
+Display employees whose salary is greater than 50,000 along with their department names.
+
+### 5.
+
+Display all departments and their employees.
+
+---
+
+# 47. LEFT JOIN Exercises
+
+### 6.
+
+Display every department, including departments with no employees.
+
+### 7.
+
+Find departments that have no employees.
+
+### 8.
+
+Display the number of employees in each department.
+
+### 9.
+
+Display the total salary for each department.
+
+### 10.
+
+Display the average salary for each department.
+
+---
+
+# 48. JOIN + Aggregation Exercises
+
+### 11.
+
+Find the highest salary in each department.
+
+### 12.
+
+Find the lowest salary in each department.
+
+### 13.
+
+Find the average salary in each department.
+
+### 14.
+
+Find departments with more than 2 employees.
+
+### 15.
+
+Find departments whose average salary is greater than 50,000.
+
+---
+
+# 49. Intermediate JOIN Exercises
+
+### 16.
+
+Display:
+
+```text
+employee_name
+department_name
+salary
+```
+
+sorted by salary from highest to lowest.
+
+### 17.
+
+Find the employee with the highest salary.
+
+### 18.
+
+Find all employees who work in the same department as Ravi.
+
+### 19.
+
+Find all departments that have at least one employee earning more than 50,000.
+
+### 20.
+
+Find the total salary paid by the company for employees working in IT.
+
+---
+
+# 50. SELF JOIN Exercise
+
+Create this table:
+
+```sql
+CREATE TABLE employee_managers (
+    employee_id INT PRIMARY KEY,
+    employee_name VARCHAR(100),
+    manager_id INT
+);
+```
+
+Insert:
+
+```sql
+INSERT INTO employee_managers
+VALUES
+    (101, 'Ravi', NULL),
+    (102, 'Sita', 101),
+    (103, 'Arun', 101),
+    (104, 'Priya', 102);
+```
+
+Write a query that displays:
+
+```text
+employee_name
+manager_name
+```
+
+Expected result:
+
+| employee_name | manager_name |
+| ------------- | ------------ |
+| Ravi          | NULL         |
+| Sita          | Ravi         |
+| Arun          | Ravi         |
+| Priya         | Sita         |
+
+---
+
+# 51. JOIN Challenge
+
+Suppose you have:
+
+```text
+customers
+orders
+products
+order_items
+```
+
+Relationships:
+
+```text
+customers
+    ↓
+orders
+    ↓
+order_items
+    ↓
+products
+```
+
+Write a query to display:
+
+```text
+customer_name
+order_id
+product_name
+quantity
+```
+
+This is a realistic multi-table JOIN problem.
+
+---
+
+# 52. Interview Questions
+
+Students should be able to answer:
+
+### Beginner
+
+1. What is a JOIN?
+2. Why do we use JOINs?
+3. What is an INNER JOIN?
+4. What is a LEFT JOIN?
+5. What is a RIGHT JOIN?
+6. What is a FULL OUTER JOIN?
+7. What is a CROSS JOIN?
+8. What is a SELF JOIN?
+9. What is the purpose of the `ON` clause?
+10. What is a table alias?
+
+### Intermediate
+
+11. INNER JOIN vs LEFT JOIN?
+12. LEFT JOIN vs RIGHT JOIN?
+13. How can you find records with no matching record?
+14. Why does a LEFT JOIN sometimes produce NULL values?
+15. Can we use JOIN with GROUP BY?
+16. Can we use JOIN with aggregate functions?
+17. What happens if the JOIN condition is missing?
+18. What is a Cartesian product?
+19. What is the difference between JOIN and UNION?
+20. Can we join more than two tables?
+
+---
+
+# 53. Important Mental Model
+
+Students should remember:
+
+```text
+                    SQL JOIN
+                       │
+          ┌────────────┼────────────┐
+          │            │            │
+       INNER         LEFT         RIGHT
+          │            │            │
+     Matching       All left      All right
+       rows           rows          rows
+```
+
+And:
+
+```text
+Table A
+   +
+Table B
+   ↓
+JOIN condition
+   ↓
+Related rows
+   ↓
+Combined result
+```
+
+---
+
+# 54. JOIN Cheat Sheet
+
+| JOIN              | What it returns                     |
+| ----------------- | ----------------------------------- |
+| `INNER JOIN`      | Matching rows from both tables      |
+| `LEFT JOIN`       | All left rows + matching right rows |
+| `RIGHT JOIN`      | All right rows + matching left rows |
+| `FULL OUTER JOIN` | All rows from both sides            |
+| `CROSS JOIN`      | Every possible combination          |
+| `SELF JOIN`       | A table joined with itself          |
+
+---
+
+# 55. Most Important JOIN Syntax
+
+Students should memorize this pattern:
+
+```sql
+SELECT
+    columns
+FROM table1
+JOIN table2
+    ON table1.common_column = table2.common_column;
+```
+
+With aliases:
+
+```sql
+SELECT
+    a.column1,
+    b.column2
+FROM table1 a
+JOIN table2 b
+    ON a.common_column = b.common_column;
+```
+
+This is the foundation of most JOIN queries.
+
+---
+
+# 56. What Students Should Know After This Chapter
+
+By the end of `09-joins`, students should be able to:
+
+```text
+✓ Explain why JOINs are required
+
+✓ Understand relationships between tables
+
+✓ Understand INNER JOIN
+
+✓ Understand LEFT JOIN
+
+✓ Understand RIGHT JOIN
+
+✓ Understand FULL OUTER JOIN concept
+
+✓ Understand CROSS JOIN
+
+✓ Understand SELF JOIN
+
+✓ Write JOIN conditions using ON
+
+✓ Use table aliases
+
+✓ Combine JOIN with WHERE
+
+✓ Combine JOIN with ORDER BY
+
+✓ Combine JOIN with GROUP BY
+
+✓ Combine JOIN with aggregate functions
+
+✓ Use JOIN to find missing relationships
+
+✓ Understand NULL values produced by LEFT JOIN
+
+✓ Join more than two tables
+
+✓ Distinguish JOIN from UNION
+
+✓ Solve real-world multi-table queries
+```
+
+---
+
+# 57. Final Concept
+
+The easiest way for students to remember JOINs is:
+
+```text
+              WHY?
+               │
+      Data is in multiple tables
+               │
+               ↓
+             JOIN
+               │
+      How are they related?
+               │
+               ↓
+              ON
+               │
+               ↓
+       Which rows should match?
+               │
+               ↓
+        Combined result
+```
+
+The key idea is:
+
+> **A JOIN connects related data stored in different tables.**
+
+Once students understand this, SQL becomes much easier because they can stop thinking of tables as isolated objects and start thinking about the **relationships between data**.
