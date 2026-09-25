@@ -1,0 +1,1458 @@
+# 02 — DDL: Data Definition Language
+
+> **From Database Concepts to Creating Real Tables**
+>
+> In Phase 0, we learned what databases and tables are.
+>
+> In Phase 1, we learned what SQL is.
+>
+> Now we will use SQL to **create and change the structure of a database**.
+>
+> This is where we start writing real SQL.
+
+---
+
+# 1. What is DDL?
+
+DDL stands for:
+
+> **Data Definition Language**
+
+DDL is used to define and manage the **structure of database objects**.
+
+For example, using DDL we can:
+
+* Create a database
+* Create a table
+* Change a table
+* Remove a table
+* Remove all rows from a table while keeping its structure
+
+The important DDL commands we will learn are:
+
+```text
+CREATE
+ALTER
+DROP
+TRUNCATE
+```
+
+Remember:
+
+> **DDL works mainly with the structure of the database.**
+
+---
+
+# 2. Structure vs Data
+
+Before learning DDL, understand this difference.
+
+Suppose we have:
+
+### Students table
+
+| student_id | student_name | age | department |
+| ---------: | ------------ | --: | ---------- |
+|        101 | Ravi         |  20 | CSE        |
+|        102 | Sita         |  21 | ECE        |
+
+The **structure** is:
+
+```text
+student_id
+student_name
+age
+department
+```
+
+The **data** is:
+
+```text
+101 | Ravi | 20 | CSE
+102 | Sita | 21 | ECE
+```
+
+So:
+
+```text
+Structure
+    ↓
+What columns does the table have?
+
+Data
+    ↓
+What values are stored in those columns?
+```
+
+DDL mainly deals with the first one.
+
+---
+
+# 3. Our Practice Database
+
+Throughout this course, we will use:
+
+```text
+college_db
+```
+
+Our database will eventually contain:
+
+```text
+college_db
+│
+├── departments
+├── students
+├── faculty
+├── courses
+├── enrollments
+└── marks
+```
+
+We will not create everything at once.
+
+We will build it step by step as we learn.
+
+---
+
+# 4. CREATE DATABASE
+
+Let's create our database.
+
+```sql
+CREATE DATABASE college_db;
+```
+
+This tells the DBMS:
+
+> Create a new database called `college_db`.
+
+---
+
+# 5. Check the Database
+
+Depending on the DBMS, you may have commands to list databases.
+
+For MySQL:
+
+```sql
+SHOW DATABASES;
+```
+
+You should see:
+
+```text
+college_db
+```
+
+---
+
+# 6. Select the Database
+
+Creating a database does not automatically mean that SQL commands will use it.
+
+We need to select it.
+
+In MySQL:
+
+```sql
+USE college_db;
+```
+
+Now SQL knows which database we are working with.
+
+Think of it like:
+
+```text
+Computer
+   │
+   └── Folder
+         │
+         └── college_db
+```
+
+We have entered that database.
+
+---
+
+# 7. CREATE TABLE
+
+Now let's create our first table.
+
+We need to tell the database:
+
+* Table name
+* Column names
+* Data types
+
+Example:
+
+```sql
+CREATE TABLE students (
+    student_id INT,
+    student_name VARCHAR(100),
+    age INT,
+    department VARCHAR(50)
+);
+```
+
+We have created the structure of the `students` table.
+
+---
+
+# 8. Understanding CREATE TABLE
+
+Look at this:
+
+```sql
+CREATE TABLE students (
+    student_id INT,
+    student_name VARCHAR(100),
+    age INT,
+    department VARCHAR(50)
+);
+```
+
+Break it into pieces:
+
+```text
+CREATE TABLE
+      ↓
+We want to create a table
+
+students
+      ↓
+Table name
+
+student_id
+      ↓
+Column name
+
+INT
+      ↓
+Data type
+```
+
+So each column needs:
+
+```text
+Column name + Data type
+```
+
+---
+
+# 9. What is a Data Type?
+
+A data type tells the database:
+
+> **What kind of value can be stored in this column?**
+
+For example:
+
+```text
+age
+```
+
+should contain a number.
+
+So we can use:
+
+```sql
+age INT
+```
+
+A person's name contains text.
+
+So:
+
+```sql
+student_name VARCHAR(100)
+```
+
+---
+
+# 10. Common SQL Data Types
+
+We will start with these common types:
+
+| Data Type | Used for             | Example                 |
+| --------- | -------------------- | ----------------------- |
+| INT       | Whole numbers        | `20`                    |
+| DECIMAL   | Decimal numbers      | `45000.50`              |
+| VARCHAR   | Variable-length text | `'Ravi'`                |
+| CHAR      | Fixed-length text    | `'M'`                   |
+| DATE      | Date                 | `'2026-09-25'`          |
+| TIME      | Time                 | `'10:30:00'`            |
+| DATETIME  | Date + time          | `'2026-09-25 10:30:00'` |
+| BOOLEAN   | True/False           | `TRUE`                  |
+
+The exact data types and behavior can vary between database systems, so examples in this course will use the DBMS selected for your practical sessions.
+
+---
+
+# 11. INT
+
+`INT` is used for whole numbers.
+
+Examples:
+
+```text
+20
+101
+500
+10000
+```
+
+Example:
+
+```sql
+CREATE TABLE students (
+    student_id INT,
+    age INT
+);
+```
+
+Here:
+
+```text
+student_id → whole number
+age        → whole number
+```
+
+---
+
+# 12. VARCHAR
+
+`VARCHAR` is commonly used for text of variable length.
+
+Example:
+
+```sql
+student_name VARCHAR(100)
+```
+
+This means the column can store text up to the specified length.
+
+Example values:
+
+```text
+Ravi
+Sita
+Arun Kumar
+Priya
+```
+
+Example:
+
+```sql
+CREATE TABLE students (
+    student_name VARCHAR(100)
+);
+```
+
+---
+
+# 13. DECIMAL
+
+`DECIMAL` is useful when we need precise decimal values.
+
+For example:
+
+```text
+45000.50
+1250.75
+99.99
+```
+
+Example:
+
+```sql
+salary DECIMAL(10,2)
+```
+
+The exact precision/scale rules depend on the DBMS, but conceptually:
+
+```text
+DECIMAL(10,2)
+          │
+          └── 2 decimal places
+```
+
+---
+
+# 14. DATE
+
+`DATE` stores a date.
+
+Example:
+
+```sql
+joining_date DATE
+```
+
+Example value:
+
+```text
+2026-09-25
+```
+
+Example table:
+
+```sql
+CREATE TABLE employees (
+    emp_id INT,
+    emp_name VARCHAR(100),
+    joining_date DATE
+);
+```
+
+---
+
+# 15. Creating a Better Students Table
+
+Now let's create our actual students table.
+
+```sql
+CREATE TABLE students (
+    student_id INT,
+    student_name VARCHAR(100),
+    age INT,
+    department VARCHAR(50),
+    admission_date DATE
+);
+```
+
+Our structure is now:
+
+| Column         | Data Type    |
+| -------------- | ------------ |
+| student_id     | INT          |
+| student_name   | VARCHAR(100) |
+| age            | INT          |
+| department     | VARCHAR(50)  |
+| admission_date | DATE         |
+
+---
+
+# 16. View the Table Structure
+
+In MySQL:
+
+```sql
+DESC students;
+```
+
+or:
+
+```sql
+DESCRIBE students;
+```
+
+This shows information about the table structure.
+
+You should see something similar to:
+
+```text
+student_id
+student_name
+age
+department
+admission_date
+```
+
+---
+
+# 17. CREATE TABLE — Important Rules
+
+When creating a table, remember:
+
+### Rule 1 — Every column needs a name
+
+```sql
+student_id
+student_name
+age
+```
+
+### Rule 2 — Every column needs a data type
+
+```sql
+student_id INT
+student_name VARCHAR(100)
+age INT
+```
+
+### Rule 3 — Separate columns using commas
+
+Correct:
+
+```sql
+CREATE TABLE students (
+    student_id INT,
+    student_name VARCHAR(100),
+    age INT
+);
+```
+
+Incorrect:
+
+```sql
+CREATE TABLE students (
+    student_id INT
+    student_name VARCHAR(100)
+    age INT
+);
+```
+
+---
+
+# 18. Creating Multiple Tables
+
+Our college database needs more than one table.
+
+Let's create the departments table.
+
+```sql
+CREATE TABLE departments (
+    dept_id INT,
+    dept_name VARCHAR(100)
+);
+```
+
+Now we have:
+
+```text
+college_db
+│
+├── students
+└── departments
+```
+
+---
+
+# 19. Create the Courses Table
+
+```sql
+CREATE TABLE courses (
+    course_id INT,
+    course_name VARCHAR(100),
+    credits INT
+);
+```
+
+Now:
+
+```text
+college_db
+│
+├── students
+├── departments
+└── courses
+```
+
+---
+
+# 20. Create the Faculty Table
+
+```sql
+CREATE TABLE faculty (
+    faculty_id INT,
+    faculty_name VARCHAR(100),
+    dept_id INT
+);
+```
+
+Now:
+
+```text
+college_db
+│
+├── students
+├── departments
+├── courses
+└── faculty
+```
+
+We will add relationships and constraints later.
+
+For now, focus on creating the structure.
+
+---
+
+# 21. SHOW TABLES
+
+In MySQL, we can see the tables inside the current database:
+
+```sql
+SHOW TABLES;
+```
+
+Expected result:
+
+```text
+departments
+faculty
+students
+courses
+```
+
+---
+
+# 22. ALTER TABLE
+
+Sometimes we create a table and later realize:
+
+> "I forgot to add a column."
+
+Do we have to delete the entire table and create it again?
+
+No.
+
+We can use:
+
+```text
+ALTER TABLE
+```
+
+`ALTER TABLE` is used to modify the structure of an existing table.
+
+---
+
+# 23. Add a Column
+
+Suppose our students table is:
+
+```text
+student_id
+student_name
+age
+department
+admission_date
+```
+
+Now we want to add:
+
+```text
+email
+```
+
+We can write:
+
+```sql
+ALTER TABLE students
+ADD email VARCHAR(100);
+```
+
+Now the table contains:
+
+```text
+student_id
+student_name
+age
+department
+admission_date
+email
+```
+
+---
+
+# 24. Add Another Column
+
+Suppose we also want:
+
+```text
+phone
+```
+
+We can write:
+
+```sql
+ALTER TABLE students
+ADD phone VARCHAR(15);
+```
+
+Now:
+
+```text
+students
+│
+├── student_id
+├── student_name
+├── age
+├── department
+├── admission_date
+├── email
+└── phone
+```
+
+---
+
+# 25. Modify a Column
+
+Sometimes the existing column definition needs to change.
+
+For example:
+
+```text
+student_name VARCHAR(50)
+```
+
+Maybe we want:
+
+```text
+student_name VARCHAR(100)
+```
+
+The exact syntax depends on the DBMS.
+
+For MySQL:
+
+```sql
+ALTER TABLE students
+MODIFY student_name VARCHAR(100);
+```
+
+The important idea is:
+
+> `ALTER TABLE` allows us to change the structure of an existing table.
+
+---
+
+# 26. Rename a Column
+
+Column-renaming syntax can differ between database systems.
+
+In MySQL, one option is:
+
+```sql
+ALTER TABLE students
+RENAME COLUMN student_name TO name;
+```
+
+Now:
+
+```text
+student_name
+```
+
+becomes:
+
+```text
+name
+```
+
+Always check the syntax for the DBMS being used in your lab.
+
+---
+
+# 27. Drop a Column
+
+Suppose we decide that `phone` is not required.
+
+We can remove the column:
+
+```sql
+ALTER TABLE students
+DROP COLUMN phone;
+```
+
+The column is removed from the table structure.
+
+Be careful:
+
+> Dropping a column removes that column and its stored values.
+
+---
+
+# 28. DROP TABLE
+
+Now let's understand another important command.
+
+```sql
+DROP TABLE students;
+```
+
+This removes the table itself.
+
+Before:
+
+```text
+students
+│
+├── student_id
+├── name
+├── age
+└── department
+```
+
+After:
+
+```text
+students
+↓
+does not exist
+```
+
+So:
+
+> **DROP TABLE removes the table structure and the data stored in that table.**
+
+---
+
+# 29. DROP vs ALTER
+
+Remember:
+
+```text
+ALTER
+  ↓
+Change an existing table
+```
+
+```text
+DROP
+  ↓
+Remove the table
+```
+
+Example:
+
+```sql
+ALTER TABLE students
+ADD email VARCHAR(100);
+```
+
+The table still exists.
+
+But:
+
+```sql
+DROP TABLE students;
+```
+
+removes the table.
+
+---
+
+# 30. TRUNCATE TABLE
+
+Now imagine the table contains:
+
+```text
+101 | Ravi
+102 | Sita
+103 | Arun
+104 | Priya
+```
+
+We want to remove all rows but keep the table structure.
+
+One command commonly used for this is:
+
+```sql
+TRUNCATE TABLE students;
+```
+
+The result is conceptually:
+
+```text
+students table
+        │
+        ├── Structure remains
+        │
+        └── Rows removed
+```
+
+---
+
+# 31. DELETE vs TRUNCATE vs DROP
+
+You will learn `DELETE` in detail in the DML section.
+
+For now, understand the basic difference:
+
+| Command  | What happens?                                      |
+| -------- | -------------------------------------------------- |
+| DELETE   | Removes rows                                       |
+| TRUNCATE | Removes all rows while keeping the table structure |
+| DROP     | Removes the table itself                           |
+
+Think:
+
+```text
+DELETE
+↓
+Remove selected/all rows
+
+TRUNCATE
+↓
+Remove all rows
+Keep table
+
+DROP
+↓
+Remove table
+```
+
+---
+
+# 32. Very Important Comparison
+
+Suppose we have:
+
+```text
+students
+```
+
+### DELETE
+
+```sql
+DELETE FROM students;
+```
+
+The table remains.
+
+### TRUNCATE
+
+```sql
+TRUNCATE TABLE students;
+```
+
+The table remains, but all rows are removed.
+
+### DROP
+
+```sql
+DROP TABLE students;
+```
+
+The table itself is removed.
+
+---
+
+# 33. DDL Command Summary
+
+| Command  | Purpose                                       |
+| -------- | --------------------------------------------- |
+| CREATE   | Create database/table/object                  |
+| ALTER    | Change structure                              |
+| DROP     | Remove database/table/object                  |
+| TRUNCATE | Remove all rows while keeping table structure |
+
+Remember:
+
+```text
+CREATE  → Build
+ALTER   → Change
+TRUNCATE → Empty
+DROP    → Remove
+```
+
+---
+
+# 34. Let's Build Our College Database
+
+Now let's put everything together.
+
+## Step 1 — Create database
+
+```sql
+CREATE DATABASE college_db;
+```
+
+## Step 2 — Select database
+
+```sql
+USE college_db;
+```
+
+## Step 3 — Create departments
+
+```sql
+CREATE TABLE departments (
+    dept_id INT,
+    dept_name VARCHAR(100)
+);
+```
+
+## Step 4 — Create students
+
+```sql
+CREATE TABLE students (
+    student_id INT,
+    student_name VARCHAR(100),
+    age INT,
+    department VARCHAR(50),
+    admission_date DATE
+);
+```
+
+## Step 5 — Create courses
+
+```sql
+CREATE TABLE courses (
+    course_id INT,
+    course_name VARCHAR(100),
+    credits INT
+);
+```
+
+## Step 6 — Create faculty
+
+```sql
+CREATE TABLE faculty (
+    faculty_id INT,
+    faculty_name VARCHAR(100),
+    dept_id INT
+);
+```
+
+## Step 7 — Check tables
+
+```sql
+SHOW TABLES;
+```
+
+---
+
+# 35. Our Database Structure
+
+After completing the above commands:
+
+```text
+college_db
+│
+├── departments
+│   ├── dept_id
+│   └── dept_name
+│
+├── students
+│   ├── student_id
+│   ├── student_name
+│   ├── age
+│   ├── department
+│   └── admission_date
+│
+├── courses
+│   ├── course_id
+│   ├── course_name
+│   └── credits
+│
+└── faculty
+    ├── faculty_id
+    ├── faculty_name
+    └── dept_id
+```
+
+At this stage, we have created the **structure**.
+
+We have not yet inserted student data.
+
+That comes in the next phase.
+
+---
+
+# 36. DDL vs DML
+
+This is one of the most important concepts to remember.
+
+### DDL
+
+Deals mainly with **structure**.
+
+```text
+CREATE
+ALTER
+DROP
+TRUNCATE
+```
+
+### DML
+
+Deals with **data**.
+
+```text
+INSERT
+UPDATE
+DELETE
+```
+
+Think about it like a house.
+
+```text
+HOUSE
+│
+├── Structure
+│     ↓
+│   DDL
+│
+└── Things inside the house
+      ↓
+     Data
+      ↓
+     DML
+```
+
+---
+
+# 37. Common Beginner Mistakes
+
+## Mistake 1 — Forgetting commas
+
+Wrong:
+
+```sql
+CREATE TABLE students (
+    student_id INT
+    student_name VARCHAR(100)
+);
+```
+
+Correct:
+
+```sql
+CREATE TABLE students (
+    student_id INT,
+    student_name VARCHAR(100)
+);
+```
+
+---
+
+## Mistake 2 — Forgetting the data type
+
+Wrong:
+
+```sql
+CREATE TABLE students (
+    student_id,
+    student_name
+);
+```
+
+Correct:
+
+```sql
+CREATE TABLE students (
+    student_id INT,
+    student_name VARCHAR(100)
+);
+```
+
+---
+
+## Mistake 3 — Wrong table name
+
+If the table is:
+
+```text
+students
+```
+
+don't accidentally write:
+
+```text
+student
+```
+
+unless that is actually the table name.
+
+---
+
+## Mistake 4 — Forgetting which database you are using
+
+Always make sure you are working in the correct database.
+
+For MySQL:
+
+```sql
+USE college_db;
+```
+
+---
+
+## Mistake 5 — Using DROP carelessly
+
+Be careful with:
+
+```sql
+DROP TABLE students;
+```
+
+It removes the table.
+
+Don't execute destructive commands just to "see what happens" on a real database.
+
+---
+
+# 38. Practice Exercises
+
+Try these without looking at the answers.
+
+### Exercise 1
+
+Create a database called:
+
+```text
+company_db
+```
+
+---
+
+### Exercise 2
+
+Create a table called:
+
+```text
+employees
+```
+
+with:
+
+```text
+employee_id
+employee_name
+age
+salary
+joining_date
+```
+
+Choose suitable data types.
+
+---
+
+### Exercise 3
+
+Create a table called:
+
+```text
+products
+```
+
+with:
+
+```text
+product_id
+product_name
+price
+quantity
+```
+
+---
+
+### Exercise 4
+
+Create a table called:
+
+```text
+customers
+```
+
+with:
+
+```text
+customer_id
+customer_name
+email
+phone
+```
+
+---
+
+### Exercise 5
+
+Add an `address` column to the `customers` table.
+
+---
+
+### Exercise 6
+
+Modify the size of the `customer_name` column.
+
+---
+
+### Exercise 7
+
+Remove the `phone` column.
+
+---
+
+### Exercise 8
+
+Create a table called:
+
+```text
+books
+```
+
+with:
+
+```text
+book_id
+title
+author
+price
+published_date
+```
+
+---
+
+### Exercise 9
+
+Remove all rows from a test table while keeping its structure.
+
+Which command would you use?
+
+---
+
+### Exercise 10
+
+Remove the test table completely.
+
+Which command would you use?
+
+---
+
+# 39. Mini Challenge
+
+Without copying the previous example, create the following database structure:
+
+```text
+college_db
+│
+├── departments
+│
+├── students
+│
+├── faculty
+│
+└── courses
+```
+
+Each table should have at least **3 columns**.
+
+For now:
+
+* Don't worry about primary keys.
+* Don't worry about foreign keys.
+* Don't insert data.
+* Focus only on the **table structure**.
+
+We will add constraints in a later phase.
+
+---
+
+# 40. Quick Revision
+
+### What is DDL?
+
+Data Definition Language.
+
+### What is the purpose of DDL?
+
+To define and modify database structure.
+
+### What does CREATE do?
+
+Creates a database, table, or other database object.
+
+### What does ALTER do?
+
+Changes the structure of an existing object.
+
+### What does DROP do?
+
+Removes the object itself.
+
+### What does TRUNCATE do?
+
+Removes all rows while keeping the table structure.
+
+### What is a data type?
+
+It defines the kind of value that a column can store.
+
+### Give examples of data types.
+
+```text
+INT
+VARCHAR
+DECIMAL
+DATE
+TIME
+DATETIME
+BOOLEAN
+```
+
+---
+
+# 41. Final Mental Model
+
+Remember this:
+
+```text
+                    DDL
+                     │
+        ┌────────────┼────────────┐
+        │            │            │
+      CREATE        ALTER        DROP
+        │            │            │
+        ↓            ↓            ↓
+      Build        Change       Remove
+        │            │
+        └────────────┘
+               │
+               ↓
+          Database
+          Structure
+```
+
+And:
+
+```text
+CREATE DATABASE
+       ↓
+   USE DATABASE
+       ↓
+  CREATE TABLE
+       ↓
+   Define columns
+       ↓
+   Choose data types
+       ↓
+   ALTER TABLE
+       ↓
+ Modify structure
+```
+
+---
+
+# 🚀 Next: DML
+
+We have created the database and tables.
+
+But our tables are empty.
+
+For example:
+
+```text
+students
+
+student_id | student_name | age
+-----------|--------------|----
+           |              |
+```
+
+Now the obvious question is:
+
+> **How do we put data inside the table?**
+
+In the next phase, we will learn:
+
+```text
+INSERT
+UPDATE
+DELETE
+```
+
+We will start adding real students, departments, courses, and faculty to our `college_db`.
