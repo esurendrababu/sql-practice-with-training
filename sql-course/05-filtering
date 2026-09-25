@@ -1,0 +1,1888 @@
+# 05 — Filtering Data with WHERE
+
+> **Learning how to find exactly the data we need**
+>
+> In the previous chapter, we learned how to retrieve data using `SELECT`.
+>
+> But normally, we don't want every row from a table.
+>
+> For example:
+>
+> * Show students older than 20.
+> * Show employees earning more than ₹50,000.
+> * Show students from CSE or ECE.
+> * Show products between ₹1,000 and ₹10,000.
+> * Show customers whose name starts with `A`.
+> * Show employees whose department is not HR.
+>
+> To answer these questions, we need **filtering**.
+
+---
+
+# 1. What is Filtering?
+
+Filtering means:
+
+> Selecting only the rows that satisfy a particular condition.
+
+Suppose we have:
+
+| student_id | student_name | age | department |
+| ---------: | ------------ | --: | ---------- |
+|        101 | Ravi         |  21 | CSE        |
+|        102 | Sita         |  19 | ECE        |
+|        103 | Arun         |  22 | CSE        |
+|        104 | Priya        |  20 | EEE        |
+|        105 | Kiran        |  24 | CSE        |
+
+Question:
+
+> Show students older than 20.
+
+We don't need all five students.
+
+We only need:
+
+| student_id | student_name | age | department |
+| ---------: | ------------ | --: | ---------- |
+|        101 | Ravi         |  21 | CSE        |
+|        103 | Arun         |  22 | CSE        |
+|        105 | Kiran        |  24 | CSE        |
+
+SQL:
+
+```sql
+SELECT *
+FROM students
+WHERE age > 20;
+```
+
+The `WHERE` clause performs the filtering.
+
+---
+
+# 2. Basic Filtering Syntax
+
+The basic syntax is:
+
+```sql
+SELECT columns
+FROM table_name
+WHERE condition;
+```
+
+Example:
+
+```sql
+SELECT *
+FROM students
+WHERE age > 20;
+```
+
+Think:
+
+```text
+SELECT
+  ↓
+What do I want to see?
+
+FROM
+  ↓
+Which table?
+
+WHERE
+  ↓
+Which rows?
+```
+
+---
+
+# 3. WHERE is About Rows
+
+This is an important concept.
+
+Suppose we write:
+
+```sql
+SELECT student_name, age
+FROM students
+WHERE age > 20;
+```
+
+`WHERE` decides:
+
+> Which rows should be included?
+
+`SELECT` decides:
+
+> Which columns should be displayed?
+
+So:
+
+```text
+WHERE → chooses rows
+SELECT → chooses columns
+```
+
+Example:
+
+```text
+Table
+  ↓
+WHERE filters rows
+  ↓
+SELECT chooses columns
+  ↓
+Result
+```
+
+---
+
+# 4. Comparison Operators
+
+SQL provides comparison operators for filtering.
+
+| Operator | Meaning                  |
+| -------- | ------------------------ |
+| `=`      | Equal to                 |
+| `<>`     | Not equal to             |
+| `!=`     | Not equal to             |
+| `>`      | Greater than             |
+| `<`      | Less than                |
+| `>=`     | Greater than or equal to |
+| `<=`     | Less than or equal to    |
+
+---
+
+# 5. Equal To — `=`
+
+Suppose we want students from CSE.
+
+```sql
+SELECT *
+FROM students
+WHERE department = 'CSE';
+```
+
+Result:
+
+| student_id | student_name | age | department |
+| ---------: | ------------ | --: | ---------- |
+|        101 | Ravi         |  21 | CSE        |
+|        103 | Arun         |  22 | CSE        |
+|        105 | Kiran        |  24 | CSE        |
+
+`=` means:
+
+> The value must match the condition.
+
+---
+
+# 6. Numbers vs Text
+
+When filtering numbers:
+
+```sql
+WHERE age = 21
+```
+
+We don't normally use quotes.
+
+For text:
+
+```sql
+WHERE department = 'CSE'
+```
+
+we use quotes.
+
+Remember:
+
+```text
+Number → 21
+Text   → 'CSE'
+```
+
+---
+
+# 7. Not Equal — `<>`
+
+Suppose we want students who are not from CSE.
+
+```sql
+SELECT *
+FROM students
+WHERE department <> 'CSE';
+```
+
+This returns students whose department is different from CSE.
+
+`<>` is the standard SQL not-equal operator.
+
+Many databases also support:
+
+```sql
+!=
+```
+
+Example:
+
+```sql
+SELECT *
+FROM students
+WHERE department != 'CSE';
+```
+
+For portable SQL, teach `<>` as the standard operator.
+
+---
+
+# 8. Greater Than — `>`
+
+Question:
+
+> Find students older than 20.
+
+```sql
+SELECT *
+FROM students
+WHERE age > 20;
+```
+
+This means:
+
+```text
+age must be greater than 20
+```
+
+So:
+
+```text
+21 ✓
+22 ✓
+24 ✓
+
+20 ✗
+19 ✗
+```
+
+---
+
+# 9. Less Than — `<`
+
+Question:
+
+> Find students younger than 21.
+
+```sql
+SELECT *
+FROM students
+WHERE age < 21;
+```
+
+This means:
+
+```text
+age must be less than 21
+```
+
+---
+
+# 10. Greater Than or Equal To — `>=`
+
+Question:
+
+> Find students aged 21 or older.
+
+```sql
+SELECT *
+FROM students
+WHERE age >= 21;
+```
+
+This includes:
+
+```text
+21 ✓
+22 ✓
+24 ✓
+```
+
+But not:
+
+```text
+20 ✗
+19 ✗
+```
+
+---
+
+# 11. Less Than or Equal To — `<=`
+
+Question:
+
+> Find students aged 21 or younger.
+
+```sql
+SELECT *
+FROM students
+WHERE age <= 21;
+```
+
+This includes:
+
+```text
+19 ✓
+20 ✓
+21 ✓
+```
+
+But not:
+
+```text
+22 ✗
+24 ✗
+```
+
+---
+
+# 12. Comparison Operator Summary
+
+| Question     | SQL         |
+| ------------ | ----------- |
+| Exactly 20   | `age = 20`  |
+| Not 20       | `age <> 20` |
+| More than 20 | `age > 20`  |
+| Less than 20 | `age < 20`  |
+| 20 or more   | `age >= 20` |
+| 20 or less   | `age <= 20` |
+
+---
+
+# 13. AND
+
+Sometimes one condition isn't enough.
+
+Question:
+
+> Find CSE students older than 20.
+
+There are two conditions:
+
+```text
+department = 'CSE'
+age > 20
+```
+
+Both must be true.
+
+Use `AND`:
+
+```sql
+SELECT *
+FROM students
+WHERE department = 'CSE'
+  AND age > 20;
+```
+
+---
+
+# 14. Understanding AND
+
+`AND` means:
+
+> All conditions must be true.
+
+Example:
+
+```sql
+WHERE department = 'CSE'
+AND age > 20
+```
+
+Think:
+
+```text
+CSE?
+  ↓
+ YES
+  ↓
+Age > 20?
+  ↓
+ YES
+  ↓
+Include row
+```
+
+If either condition is false, the row is excluded.
+
+---
+
+# 15. AND Example
+
+Suppose:
+
+| Student | Department | Age |
+| ------- | ---------- | --: |
+| Ravi    | CSE        |  21 |
+| Sita    | ECE        |  22 |
+| Arun    | CSE        |  19 |
+| Priya   | EEE        |  24 |
+
+Query:
+
+```sql
+SELECT *
+FROM students
+WHERE department = 'CSE'
+  AND age > 20;
+```
+
+Result:
+
+```text
+Ravi
+```
+
+Why?
+
+```text
+Ravi
+CSE ✓
+Age > 20 ✓
+→ Included
+
+Arun
+CSE ✓
+Age > 20 ✗
+→ Excluded
+```
+
+---
+
+# 16. OR
+
+Sometimes we want either condition to match.
+
+Question:
+
+> Find students from CSE or ECE.
+
+```sql
+SELECT *
+FROM students
+WHERE department = 'CSE'
+   OR department = 'ECE';
+```
+
+`OR` means:
+
+> At least one condition must be true.
+
+---
+
+# 17. AND vs OR
+
+### AND
+
+```text
+Condition A
+    AND
+Condition B
+```
+
+Both must be true.
+
+### OR
+
+```text
+Condition A
+    OR
+Condition B
+```
+
+At least one must be true.
+
+Easy way to remember:
+
+```text
+AND → Both
+OR  → Either
+```
+
+---
+
+# 18. NOT
+
+`NOT` reverses a condition.
+
+Example:
+
+```sql
+SELECT *
+FROM students
+WHERE NOT department = 'CSE';
+```
+
+This means:
+
+> Students who are not in CSE.
+
+You can also write:
+
+```sql
+SELECT *
+FROM students
+WHERE department <> 'CSE';
+```
+
+For simple comparisons, `<>` is usually easier to read.
+
+---
+
+# 19. Combining AND and OR
+
+Suppose we want:
+
+> Students who are from CSE or ECE and are older than 20.
+
+Write:
+
+```sql
+SELECT *
+FROM students
+WHERE (department = 'CSE' OR department = 'ECE')
+  AND age > 20;
+```
+
+The parentheses are important.
+
+They make our intention clear:
+
+```text
+(CSE OR ECE)
+       AND
+   age > 20
+```
+
+---
+
+# 20. Why Parentheses Matter
+
+Consider:
+
+```sql
+WHERE department = 'CSE'
+   OR department = 'ECE'
+  AND age > 20;
+```
+
+SQL gives `AND` higher precedence than `OR`.
+
+So it is interpreted as:
+
+```text
+CSE
+OR
+(ECE AND age > 20)
+```
+
+That may not be what we intended.
+
+If we mean:
+
+```text
+(CSE OR ECE)
+AND
+age > 20
+```
+
+write:
+
+```sql
+WHERE (department = 'CSE' OR department = 'ECE')
+  AND age > 20;
+```
+
+### Good habit
+
+> When mixing `AND` and `OR`, use parentheses to make the intended logic explicit.
+
+---
+
+# 21. BETWEEN
+
+`BETWEEN` is useful when filtering a range.
+
+Question:
+
+> Find students aged between 20 and 22.
+
+```sql
+SELECT *
+FROM students
+WHERE age BETWEEN 20 AND 22;
+```
+
+`BETWEEN` includes both boundary values.
+
+So this means:
+
+```text
+20 ≤ age ≤ 22
+```
+
+---
+
+# 22. BETWEEN vs AND
+
+Don't confuse:
+
+```sql
+age BETWEEN 20 AND 22
+```
+
+with:
+
+```sql
+age > 20 AND age < 22
+```
+
+The first includes 20 and 22.
+
+The second excludes them.
+
+Compare:
+
+```text
+BETWEEN 20 AND 22
+→ 20, 21, 22
+
+> 20 AND < 22
+→ 21
+```
+
+---
+
+# 23. NOT BETWEEN
+
+We can also exclude a range.
+
+```sql
+SELECT *
+FROM students
+WHERE age NOT BETWEEN 20 AND 22;
+```
+
+This returns values outside the specified range, subject to normal SQL `NULL` behavior.
+
+---
+
+# 24. IN
+
+Suppose we want students from:
+
+```text
+CSE
+ECE
+EEE
+```
+
+Without `IN`:
+
+```sql
+SELECT *
+FROM students
+WHERE department = 'CSE'
+   OR department = 'ECE'
+   OR department = 'EEE';
+```
+
+This works, but it is long.
+
+With `IN`:
+
+```sql
+SELECT *
+FROM students
+WHERE department IN ('CSE', 'ECE', 'EEE');
+```
+
+Much easier to read.
+
+---
+
+# 25. How IN Works
+
+Think of:
+
+```sql
+department IN ('CSE', 'ECE', 'EEE')
+```
+
+as:
+
+```text
+department = 'CSE'
+OR
+department = 'ECE'
+OR
+department = 'EEE'
+```
+
+For simple equality lists, `IN` is cleaner.
+
+---
+
+# 26. NOT IN
+
+We can also exclude multiple values.
+
+Question:
+
+> Find students who are not from CSE or ECE.
+
+```sql
+SELECT *
+FROM students
+WHERE department NOT IN ('CSE', 'ECE');
+```
+
+This returns departments other than the listed values, with the usual SQL behavior around `NULL`.
+
+---
+
+# 27. LIKE
+
+`LIKE` is used for pattern matching.
+
+For example:
+
+> Find students whose names start with A.
+
+```sql
+SELECT *
+FROM students
+WHERE student_name LIKE 'A%';
+```
+
+Here `%` is a wildcard.
+
+---
+
+# 28. `%` Wildcard
+
+In a `LIKE` pattern:
+
+```text
+%
+```
+
+means:
+
+> Zero or more characters.
+
+Examples:
+
+```text
+'A%'
+```
+
+means:
+
+> Starts with A.
+
+```text
+'%a'
+```
+
+means:
+
+> Ends with a.
+
+```text
+'%ar%'
+```
+
+means:
+
+> Contains `ar`.
+
+---
+
+# 29. LIKE Examples
+
+### Starts with A
+
+```sql
+SELECT *
+FROM students
+WHERE student_name LIKE 'A%';
+```
+
+Possible matches:
+
+```text
+Arun
+Anil
+Arjun
+```
+
+---
+
+### Ends with a
+
+```sql
+SELECT *
+FROM students
+WHERE student_name LIKE '%a';
+```
+
+Possible matches:
+
+```text
+Sita
+Priya
+Meena
+```
+
+---
+
+### Contains "ri"
+
+```sql
+SELECT *
+FROM students
+WHERE student_name LIKE '%ri%';
+```
+
+Possible matches depend on the data and database collation.
+
+---
+
+# 30. `_` Wildcard
+
+The underscore `_` represents exactly one character in a `LIKE` pattern.
+
+Example:
+
+```sql
+SELECT *
+FROM students
+WHERE student_name LIKE '_avi';
+```
+
+This can match a four-character value ending in `avi`.
+
+Examples:
+
+```text
+Ravi
+Kavi
+```
+
+Conceptually:
+
+```text
+% → zero or more characters
+_ → exactly one character
+```
+
+---
+
+# 31. LIKE with Multiple Conditions
+
+We can combine `LIKE` with other operators.
+
+Question:
+
+> Find CSE students whose names start with A.
+
+```sql
+SELECT *
+FROM students
+WHERE department = 'CSE'
+  AND student_name LIKE 'A%';
+```
+
+Now three SQL concepts are working together:
+
+```text
+=
+AND
+LIKE
+```
+
+---
+
+# 32. IS NULL
+
+`NULL` is special in SQL.
+
+Suppose:
+
+| student_id | student_name | phone      |
+| ---------: | ------------ | ---------- |
+|        101 | Ravi         | 9876543210 |
+|        102 | Sita         | NULL       |
+|        103 | Arun         | 9123456789 |
+
+Question:
+
+> Which students don't have a phone number?
+
+Do **not** write:
+
+```sql
+WHERE phone = NULL;
+```
+
+Instead:
+
+```sql
+SELECT *
+FROM students
+WHERE phone IS NULL;
+```
+
+---
+
+# 33. IS NOT NULL
+
+To find students who have a phone number:
+
+```sql
+SELECT *
+FROM students
+WHERE phone IS NOT NULL;
+```
+
+Remember:
+
+```text
+NULL
+ ↓
+IS NULL
+
+Not NULL
+ ↓
+IS NOT NULL
+```
+
+---
+
+# 34. Why `= NULL` Does Not Work
+
+SQL uses three-valued logic:
+
+```text
+TRUE
+FALSE
+UNKNOWN
+```
+
+A comparison involving `NULL`, such as:
+
+```sql
+phone = NULL
+```
+
+does not evaluate to `TRUE` when `phone` is NULL.
+
+That's why SQL provides:
+
+```sql
+IS NULL
+```
+
+and:
+
+```sql
+IS NOT NULL
+```
+
+This is an important concept to understand early.
+
+---
+
+# 35. Filtering Text
+
+Example table:
+
+| employee_id | employee_name | department |
+| ----------: | ------------- | ---------- |
+|         101 | Ravi          | IT         |
+|         102 | Sita          | HR         |
+|         103 | Arun          | IT         |
+|         104 | Priya         | Finance    |
+
+### IT employees
+
+```sql
+SELECT *
+FROM employees
+WHERE department = 'IT';
+```
+
+### Employees not in HR
+
+```sql
+SELECT *
+FROM employees
+WHERE department <> 'HR';
+```
+
+### Employees from IT or Finance
+
+```sql
+SELECT *
+FROM employees
+WHERE department IN ('IT', 'Finance');
+```
+
+---
+
+# 36. Filtering Numbers
+
+Suppose:
+
+| employee_id | employee_name | salary |
+| ----------: | ------------- | -----: |
+|         101 | Ravi          |  45000 |
+|         102 | Sita          |  50000 |
+|         103 | Arun          |  42000 |
+|         104 | Priya         |  55000 |
+
+### Salary greater than 45,000
+
+```sql
+SELECT *
+FROM employees
+WHERE salary > 45000;
+```
+
+### Salary 50,000 or more
+
+```sql
+SELECT *
+FROM employees
+WHERE salary >= 50000;
+```
+
+### Salary between 40,000 and 50,000
+
+```sql
+SELECT *
+FROM employees
+WHERE salary BETWEEN 40000 AND 50000;
+```
+
+---
+
+# 37. Filtering Dates
+
+Filtering also works with dates.
+
+Suppose:
+
+```text
+employee_id
+employee_name
+joining_date
+```
+
+Question:
+
+> Find employees who joined after January 1, 2025.
+
+Example:
+
+```sql
+SELECT *
+FROM employees
+WHERE joining_date > '2025-01-01';
+```
+
+For a specific range:
+
+```sql
+SELECT *
+FROM employees
+WHERE joining_date BETWEEN '2025-01-01'
+                       AND '2025-12-31';
+```
+
+Exact date behavior and timestamp handling can vary by DBMS, so students should learn the date/time types of the database they are using.
+
+---
+
+# 38. Filtering with Multiple Conditions
+
+Real SQL questions usually involve multiple conditions.
+
+Example:
+
+> Find IT employees earning more than ₹50,000.
+
+```sql
+SELECT *
+FROM employees
+WHERE department = 'IT'
+  AND salary > 50000;
+```
+
+Another:
+
+> Find employees from IT or HR earning at least ₹45,000.
+
+```sql
+SELECT *
+FROM employees
+WHERE department IN ('IT', 'HR')
+  AND salary >= 45000;
+```
+
+---
+
+# 39. Filtering + Sorting
+
+Filtering and sorting are often used together.
+
+Question:
+
+> Find IT employees and show the highest salary first.
+
+```sql
+SELECT *
+FROM employees
+WHERE department = 'IT'
+ORDER BY salary DESC;
+```
+
+Notice the difference:
+
+```text
+WHERE
+→ Which rows?
+
+ORDER BY
+→ In what order?
+```
+
+---
+
+# 40. Filtering + SELECT
+
+We can also choose only the columns we need.
+
+Question:
+
+> Show the names and salaries of IT employees earning more than ₹45,000.
+
+```sql
+SELECT employee_name, salary
+FROM employees
+WHERE department = 'IT'
+  AND salary > 45000;
+```
+
+Break it down:
+
+```text
+SELECT
+→ employee_name, salary
+
+FROM
+→ employees
+
+WHERE
+→ department = IT
+→ salary > 45000
+```
+
+---
+
+# 41. Filtering + DISTINCT
+
+Question:
+
+> Which departments have employees earning more than ₹50,000?
+
+```sql
+SELECT DISTINCT department
+FROM employees
+WHERE salary > 50000;
+```
+
+Logical idea:
+
+```text
+employees
+   ↓
+Filter salary > 50000
+   ↓
+Select department
+   ↓
+Remove duplicates
+```
+
+---
+
+# 42. Filtering + ORDER BY + LIMIT
+
+Question:
+
+> Show the top 3 highest-paid IT employees.
+
+```sql
+SELECT employee_name, salary
+FROM employees
+WHERE department = 'IT'
+ORDER BY salary DESC
+LIMIT 3;
+```
+
+Think:
+
+```text
+FROM
+ ↓
+employees
+
+WHERE
+ ↓
+IT employees
+
+ORDER BY
+ ↓
+Highest salary first
+
+LIMIT
+ ↓
+First 3
+```
+
+---
+
+# 43. A Better Way to Think About SQL
+
+Don't memorize:
+
+```sql
+SELECT *
+FROM employees
+WHERE department = 'IT'
+AND salary > 50000;
+```
+
+Instead, convert the English question into pieces.
+
+### Question
+
+> Show IT employees earning more than ₹50,000.
+
+### Step 1 — What do I need?
+
+```text
+employees
+```
+
+### Step 2 — What columns?
+
+```text
+employee_name
+salary
+```
+
+### Step 3 — Which rows?
+
+```text
+department = IT
+salary > 50000
+```
+
+### Step 4 — Combine conditions
+
+```text
+AND
+```
+
+### Final query
+
+```sql
+SELECT employee_name, salary
+FROM employees
+WHERE department = 'IT'
+  AND salary > 50000;
+```
+
+This approach is much more useful than memorizing SQL statements.
+
+---
+
+# 44. Filtering Decision Guide
+
+When reading a question, look for keywords.
+
+| Question wording     | SQL             |
+| -------------------- | --------------- |
+| equal to             | `=`             |
+| not equal to         | `<>`            |
+| greater than         | `>`             |
+| less than            | `<`             |
+| at least             | `>=`            |
+| at most              | `<=`            |
+| between              | `BETWEEN`       |
+| one of these values  | `IN`            |
+| none of these values | `NOT IN`        |
+| starts with          | `LIKE 'A%'`     |
+| ends with            | `LIKE '%a'`     |
+| contains             | `LIKE '%word%'` |
+| missing value        | `IS NULL`       |
+| available value      | `IS NOT NULL`   |
+| both conditions      | `AND`           |
+| either condition     | `OR`            |
+| opposite condition   | `NOT`           |
+
+---
+
+# 45. Common Mistakes
+
+## Mistake 1 — Using `=` with NULL
+
+Wrong:
+
+```sql
+WHERE phone = NULL;
+```
+
+Correct:
+
+```sql
+WHERE phone IS NULL;
+```
+
+---
+
+## Mistake 2 — Forgetting quotes around text
+
+Wrong:
+
+```sql
+WHERE department = CSE;
+```
+
+Correct:
+
+```sql
+WHERE department = 'CSE';
+```
+
+---
+
+## Mistake 3 — Confusing BETWEEN boundaries
+
+Remember:
+
+```sql
+BETWEEN 20 AND 30
+```
+
+includes:
+
+```text
+20
+30
+```
+
+---
+
+## Mistake 4 — Mixing AND and OR incorrectly
+
+Potentially confusing:
+
+```sql
+WHERE department = 'CSE'
+   OR department = 'ECE'
+  AND age > 20;
+```
+
+Clearer:
+
+```sql
+WHERE (department = 'CSE' OR department = 'ECE')
+  AND age > 20;
+```
+
+---
+
+## Mistake 5 — Using many OR conditions unnecessarily
+
+Instead of:
+
+```sql
+WHERE department = 'CSE'
+   OR department = 'ECE'
+   OR department = 'EEE';
+```
+
+use:
+
+```sql
+WHERE department IN ('CSE', 'ECE', 'EEE');
+```
+
+when the logic is simply membership in a list.
+
+---
+
+# 46. Practice Dataset
+
+Use this dataset for the exercises.
+
+```sql
+CREATE TABLE employees (
+    employee_id INT,
+    employee_name VARCHAR(100),
+    age INT,
+    department VARCHAR(50),
+    salary DECIMAL(10,2),
+    city VARCHAR(50),
+    joining_date DATE
+);
+```
+
+Insert:
+
+```sql
+INSERT INTO employees
+    (employee_id, employee_name, age, department, salary, city, joining_date)
+VALUES
+    (101, 'Ravi', 25, 'IT', 45000, 'Hyderabad', '2024-01-15'),
+    (102, 'Sita', 28, 'HR', 52000, 'Bangalore', '2023-06-10'),
+    (103, 'Arun', 24, 'IT', 48000, 'Chennai', '2025-02-20'),
+    (104, 'Priya', 30, 'Finance', 65000, 'Bangalore', '2022-11-05'),
+    (105, 'Kiran', 26, 'IT', 55000, 'Hyderabad', '2024-08-18'),
+    (106, 'Anil', 29, 'HR', 47000, 'Chennai', '2023-03-12'),
+    (107, 'Meena', 27, 'Finance', 58000, 'Hyderabad', '2025-01-25'),
+    (108, 'Arjun', 23, 'IT', 42000, 'Bangalore', '2026-04-10');
+```
+
+---
+
+# 47. Beginner Exercises
+
+Write queries for:
+
+### 1. All employees
+
+```text
+Show all employees.
+```
+
+### 2. IT employees
+
+```text
+Show employees working in IT.
+```
+
+### 3. Employees older than 25
+
+```text
+Show employees whose age is greater than 25.
+```
+
+### 4. Employees earning more than 50,000
+
+```text
+Show employees whose salary is greater than 50000.
+```
+
+### 5. Employees from Bangalore
+
+```text
+Show employees who live in Bangalore.
+```
+
+---
+
+# 48. Comparison Exercises
+
+Write queries for:
+
+1. Employees aged exactly 25.
+2. Employees not in IT.
+3. Employees younger than 25.
+4. Employees aged 25 or older.
+5. Employees earning less than 50,000.
+6. Employees earning 50,000 or more.
+7. Employees earning exactly 55,000.
+8. Employees not earning 55,000.
+
+---
+
+# 49. AND / OR Exercises
+
+Write queries for:
+
+1. IT employees older than 25.
+2. HR employees earning more than 45,000.
+3. Employees from IT or HR.
+4. Employees from Bangalore or Hyderabad.
+5. IT employees earning more than 45,000.
+6. Employees from IT or HR who earn more than 45,000.
+7. Employees from Bangalore who are older than 25.
+
+---
+
+# 50. BETWEEN Exercises
+
+Write queries for:
+
+1. Employees aged between 25 and 30.
+2. Employees earning between 45,000 and 55,000.
+3. Employees who joined between `2023-01-01` and `2024-12-31`.
+
+Remember:
+
+```text
+BETWEEN includes both boundaries.
+```
+
+---
+
+# 51. IN / NOT IN Exercises
+
+Write queries for:
+
+1. Employees from IT, HR, or Finance.
+2. Employees from Bangalore or Hyderabad.
+3. Employees not from IT or HR.
+4. Employees whose age is 23, 25, or 30.
+
+---
+
+# 52. LIKE Exercises
+
+Write queries for:
+
+1. Employees whose names start with `A`.
+2. Employees whose names start with `R`.
+3. Employees whose names end with `a`.
+4. Employees whose names contain `i`.
+5. Employees whose city starts with `H`.
+6. Employees whose names contain `an`.
+
+---
+
+# 53. Real-World SQL Questions
+
+Try to solve these without looking at previous examples.
+
+### Question 1
+
+> Find all IT employees earning more than ₹45,000.
+
+### Question 2
+
+> Find all employees from Bangalore who are older than 25.
+
+### Question 3
+
+> Find employees from IT or Finance.
+
+### Question 4
+
+> Find employees aged between 25 and 30.
+
+### Question 5
+
+> Find employees whose names start with `A`.
+
+### Question 6
+
+> Find employees who are not from HR.
+
+### Question 7
+
+> Find employees from Bangalore or Hyderabad who earn more than ₹50,000.
+
+### Question 8
+
+> Find IT employees whose names start with `A`.
+
+### Question 9
+
+> Find employees whose salary is between ₹45,000 and ₹60,000.
+
+### Question 10
+
+> Find employees from IT, HR, or Finance who are older than 25.
+
+---
+
+# 54. Challenge
+
+Write **one query** for each requirement.
+
+### Challenge 1
+
+Show:
+
+```text
+employee_name
+department
+salary
+```
+
+for employees who:
+
+```text
+are from IT or Finance
+AND
+earn more than ₹45,000
+AND
+are older than 24
+```
+
+---
+
+### Challenge 2
+
+Show employees who:
+
+```text
+live in Bangalore or Hyderabad
+AND
+their salary is between ₹45,000 and ₹60,000
+```
+
+Sort the result by salary from highest to lowest.
+
+---
+
+### Challenge 3
+
+Show the top 3 highest-paid employees from:
+
+```text
+IT
+HR
+```
+
+---
+
+### Challenge 4
+
+Show unique cities of employees whose salary is greater than ₹50,000.
+
+---
+
+# 55. Interview Questions
+
+### Q1. What is the purpose of WHERE?
+
+`WHERE` filters rows based on a condition.
+
+### Q2. What is the difference between `=` and `<>`?
+
+```text
+=  → Equal
+<> → Not equal
+```
+
+### Q3. What is the difference between AND and OR?
+
+```text
+AND → All specified conditions must be true.
+
+OR → At least one condition must be true.
+```
+
+### Q4. What is BETWEEN?
+
+It filters values within a range and includes both boundary values.
+
+### Q5. What is IN?
+
+It checks whether a value matches one of the values in a specified list.
+
+### Q6. What is LIKE?
+
+It performs pattern matching on character/string data.
+
+### Q7. What do `%` and `_` mean in LIKE?
+
+```text
+% → Zero or more characters
+_ → Exactly one character
+```
+
+### Q8. How do you check NULL?
+
+```sql
+IS NULL
+```
+
+### Q9. Why can't we use `= NULL`?
+
+Because `NULL` represents an unknown/missing value and normal equality comparison with NULL does not produce TRUE.
+
+### Q10. Why are parentheses useful with AND and OR?
+
+They make the intended logical grouping explicit and avoid ambiguity caused by operator precedence.
+
+---
+
+# 56. Final Mental Model
+
+When you receive a SQL question, think:
+
+```text
+                    QUESTION
+                       │
+                       ↓
+                 What data?
+                       │
+                       ↓
+                    SELECT
+                       │
+                       ↓
+                 Which table?
+                       │
+                       ↓
+                     FROM
+                       │
+                       ↓
+                 Which rows?
+                       │
+                       ↓
+                     WHERE
+                       │
+          ┌────────────┼────────────┐
+          ↓            ↓            ↓
+       Compare       Combine      Pattern
+          │            │            │
+       = <> > <     AND OR NOT    LIKE
+       >= <=        IN            %
+                     BETWEEN       _
+                     NULL
+          │
+          ↓
+                    RESULT
+```
+
+---
+
+# 57. What Students Should Be Able to Do
+
+After completing this chapter, students should be able to look at a question such as:
+
+> "Find the top 5 IT employees who are older than 25 and earn between ₹50,000 and ₹80,000."
+
+and break it into:
+
+```text
+Table
+→ employees
+
+Columns
+→ employee_name, age, salary
+
+Conditions
+→ department = 'IT'
+→ age > 25
+→ salary BETWEEN 50000 AND 80000
+
+Sorting
+→ salary DESC
+
+Rows
+→ LIMIT 5
+```
+
+Then construct:
+
+```sql
+SELECT employee_name, age, salary
+FROM employees
+WHERE department = 'IT'
+  AND age > 25
+  AND salary BETWEEN 50000 AND 80000
+ORDER BY salary DESC
+LIMIT 5;
+```
+
+That is the real objective of this chapter:
+
+> **Students should learn to convert a business question into SQL filtering logic.**
+
+---
+
+# 58. Chapter Summary
+
+We learned:
+
+```text
+WHERE
+=
+<>
+!=
+>
+<
+>=
+<=
+AND
+OR
+NOT
+BETWEEN
+NOT BETWEEN
+IN
+NOT IN
+LIKE
+%
+_
+IS NULL
+IS NOT NULL
+```
+
+The most important mental model is:
+
+```text
+WHERE
+ ↓
+Which rows do I want?
+```
+
+And:
+
+```text
+AND → All conditions
+OR  → At least one condition
+IN  → Match a list
+BETWEEN → Match a range
+LIKE → Match a pattern
+IS NULL → Find missing values
+```
+
+---
+
+# 🚀 Next: 06 — SQL Functions
+
+Now students know how to **filter rows**.
+
+The next natural question is:
+
+> "Can SQL calculate something from the data?"
+
+For example:
+
+```text
+Convert names to uppercase
+Find the length of a name
+Round a number
+Calculate salary
+Work with dates
+```
+
+That takes us to **SQL Functions**.
