@@ -1,1 +1,616 @@
 
+# 01 — SQL Introduction
+
+> **From Understanding Databases to Working with Databases**
+>
+> In Phase 0, we learned what a database, table, row, column, primary key, foreign key, NULL, and relationship are.
+>
+> Now we are going to learn how we actually **work with that data**.
+>
+> The language we use is called **SQL**.
+
+---
+
+# 1. What is SQL?
+
+**SQL** stands for:
+
+> **Structured Query Language**
+
+SQL is a language used to communicate with a relational database.
+
+With SQL, we can:
+
+* Create databases and tables
+* Insert data
+* Read data
+* Update data
+* Delete data
+* Search for specific data
+* Combine data from multiple tables
+* Group and analyze data
+* Create views
+* Manage database objects
+
+In simple words:
+
+> **SQL allows us to tell the database what we want to do with the data.**
+
+---
+
+# 2. Why Do We Need SQL?
+
+Let's take our college database from Phase 0.
+
+Suppose we have:
+
+```text
+College Database
+│
+├── Students
+├── Departments
+├── Faculty
+├── Courses
+└── Marks
+```
+
+The database contains thousands of records.
+
+Now the college asks:
+
+> "Show me all CSE students."
+
+We need a way to ask the database this question.
+
+SQL allows us to do that.
+
+Later, we will write something like:
+
+```sql
+SELECT *
+FROM students
+WHERE department = 'CSE';
+```
+
+Don't worry about understanding every part of this query yet.
+
+For now, understand the idea:
+
+```text
+Human question
+      ↓
+      SQL
+      ↓
+Database
+      ↓
+Result
+```
+
+---
+
+# 3. SQL as a Communication Language
+
+Think of a database as a person who has a huge amount of information.
+
+You ask:
+
+> "Give me all students from CSE."
+
+The database needs a language to understand your request.
+
+That language is SQL.
+
+```text
+        YOU
+         │
+         │ SQL
+         ↓
+      DATABASE
+         │
+         │ Result
+         ↓
+        YOU
+```
+
+So:
+
+> **SQL is the language used to communicate with a relational database.**
+
+---
+
+# 4. SQL Is Not a Database
+
+This is an important distinction.
+
+Students often confuse:
+
+```text
+SQL
+MySQL
+Database
+DBMS
+```
+
+They are not the same thing.
+
+### SQL
+
+A language used to communicate with databases.
+
+### MySQL
+
+A database management system that supports SQL.
+
+### Database
+
+The actual organized collection of data.
+
+For example:
+
+```text
+SQL
+ ↓
+Language
+```
+
+```text
+MySQL
+ ↓
+DBMS
+```
+
+```text
+College Database
+ ↓
+Actual stored data
+```
+
+---
+
+# 5. SQL vs MySQL
+
+A very common interview question is:
+
+> Is SQL the same as MySQL?
+
+**No.**
+
+Think about it this way:
+
+```text
+SQL
+│
+└── Language
+
+MySQL
+│
+└── DBMS that uses SQL
+```
+
+Similar examples include:
+
+```text
+SQL Server
+Oracle Database
+PostgreSQL
+MySQL
+SQLite
+```
+
+These systems support SQL, but their features and exact syntax can differ in some areas.
+
+---
+
+# 6. How SQL Works
+
+The basic flow is:
+
+```text
+User
+  │
+  ↓
+SQL Query
+  │
+  ↓
+DBMS
+  │
+  ↓
+Database
+  │
+  ↓
+Result
+```
+
+For example:
+
+```text
+Question:
+"Show all students."
+
+        ↓
+
+SQL Query
+
+        ↓
+
+DBMS
+
+        ↓
+
+Students Table
+
+        ↓
+
+Result
+```
+
+The DBMS receives the SQL statement, processes it, accesses the required data, and returns a result or performs the requested operation.
+
+---
+
+# 7. What Can We Do Using SQL?
+
+SQL can be used for several types of operations.
+
+Imagine we have this table:
+
+### Students
+
+| student_id | name | age | department |
+| ---------: | ---- | --: | ---------- |
+|        101 | Ravi |  20 | CSE        |
+|        102 | Sita |  21 | ECE        |
+|        103 | Arun |  20 | CSE        |
+
+We may want to:
+
+### Create a table
+
+> "Create a table called students."
+
+### Insert data
+
+> "Add Ravi to the students table."
+
+### Read data
+
+> "Show all students."
+
+### Search data
+
+> "Show only CSE students."
+
+### Update data
+
+> "Change Ravi's age."
+
+### Delete data
+
+> "Remove a student."
+
+All of these operations can be performed using SQL.
+
+---
+
+# 8. Types of SQL Commands
+
+SQL commands are commonly grouped into different categories.
+
+The major categories we will study are:
+
+```text
+SQL
+│
+├── DDL
+├── DML
+├── DQL
+├── DCL
+└── TCL
+```
+
+Let's understand what each one means.
+
+---
+
+# 9. DDL — Data Definition Language
+
+DDL stands for:
+
+> **Data Definition Language**
+
+DDL is used to define or change the **structure of database objects**.
+
+For example:
+
+```text
+Create a table
+Change a table
+Delete a table
+```
+
+Common DDL commands:
+
+```text
+CREATE
+ALTER
+DROP
+TRUNCATE
+```
+
+Example:
+
+```sql
+CREATE TABLE students (
+    student_id INT,
+    name VARCHAR(50),
+    age INT
+);
+```
+
+Here we are defining the structure of a table.
+
+### Easy way to remember
+
+> **DDL → Defines the structure**
+
+We will study DDL in the next phase.
+
+---
+
+# 10. DML — Data Manipulation Language
+
+DML stands for:
+
+> **Data Manipulation Language**
+
+DML is used to work with the data stored inside tables.
+
+Common commands:
+
+```text
+INSERT
+UPDATE
+DELETE
+```
+
+For example:
+
+```sql
+INSERT INTO students
+VALUES (101, 'Ravi', 20);
+```
+
+We are adding data to the table.
+
+Another example:
+
+```sql
+UPDATE students
+SET age = 21
+WHERE student_id = 101;
+```
+
+We are changing existing data.
+
+### Easy way to remember
+
+> **DML → Manipulates the data**
+
+---
+
+# 11. DQL — Data Query Language
+
+DQL stands for:
+
+> **Data Query Language**
+
+It is commonly used to describe commands that retrieve data.
+
+The primary command is:
+
+```text
+SELECT
+```
+
+Example:
+
+```sql
+SELECT *
+FROM students;
+```
+
+This asks the database:
+
+> "Give me the data from the students table."
+
+### Easy way to remember
+
+> **DQL → Queries / retrieves data**
+
+---
+
+# 12. DCL — Data Control Language
+
+DCL stands for:
+
+> **Data Control Language**
+
+DCL deals with permissions and access control.
+
+Common commands include:
+
+```text
+GRANT
+REVOKE
+```
+
+For example, a database administrator may give a user permission to access certain database objects.
+
+We will study this only as required later.
+
+---
+
+# 13. TCL — Transaction Control Language
+
+TCL stands for:
+
+> **Transaction Control Language**
+
+It is used to control transactions.
+
+Common commands include:
+
+```text
+COMMIT
+ROLLBACK
+SAVEPOINT
+```
+
+For example:
+
+```text
+Transaction
+     │
+     ├── Successful → COMMIT
+     │
+     └── Problem    → ROLLBACK
+```
+
+We will study transactions in detail later when we reach the Transaction unit.
+
+---
+
+# 14. SQL Command Categories — Quick View
+
+| Category | Full Form                    | Purpose              | Common Commands               |
+| -------- | ---------------------------- | -------------------- | ----------------------------- |
+| DDL      | Data Definition Language     | Define structure     | CREATE, ALTER, DROP, TRUNCATE |
+| DML      | Data Manipulation Language   | Modify data          | INSERT, UPDATE, DELETE        |
+| DQL      | Data Query Language          | Retrieve data        | SELECT                        |
+| DCL      | Data Control Language        | Control permissions  | GRANT, REVOKE                 |
+| TCL      | Transaction Control Language | Control transactions | COMMIT, ROLLBACK, SAVEPOINT   |
+
+### Remember
+
+```text
+DDL → Structure
+DML → Data
+DQL → Query
+DCL → Permissions
+TCL → Transactions
+```
+
+---
+
+# 15. SQL Statement vs SQL Query
+
+These two terms are often used interchangeably, but it is useful to understand the difference.
+
+A **SQL statement** is an instruction given to the database.
+
+For example:
+
+```sql
+CREATE TABLE students (...);
+```
+
+A **query** generally refers to a request for information from the database.
+
+For example:
+
+```sql
+SELECT *
+FROM students;
+```
+
+So:
+
+```text
+SQL Statement
+     │
+     ├── CREATE
+     ├── INSERT
+     ├── UPDATE
+     ├── DELETE
+     └── SELECT
+```
+
+For beginners, you will often hear both **SQL statement** and **SQL query** in practical discussions.
+
+---
+
+# 16. SQL Syntax
+
+SQL has rules, just like any language.
+
+For example:
+
+```sql
+SELECT *
+FROM students;
+```
+
+Let's understand the basic structure.
+
+```text
+SELECT
+   ↓
+What do you want?
+
+FROM
+   ↓
+Where should the data come from?
+
+students
+   ↓
+Table name
+```
+
+And:
+
+```text
+;
+```
+
+marks the end of the SQL statement in many SQL environments.
+
+---
+
+# 17. SQL Keywords
+
+Words such as:
+
+```text
+SELECT
+FROM
+WHERE
+CREATE
+TABLE
+INSERT
+UPDATE
+DELETE
+```
+
+are SQL keywords.
+
+They have a special meaning in SQL.
+
+Example:
+
+```sql
+SELECT name
+FROM students;
+```
+
+Here:
+
+```text
+SELECT → SQL keyword
+FROM   → SQL keyword
+name   → Column name
+students → Table name
+```
+
+---
+
+# 18. SQL Is Generally Case-Insensitive for Keywords
